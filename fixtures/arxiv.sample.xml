@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <link href="http://arxiv.org/api/query?search_query=all:vision+language" rel="self" type="application/atom+xml"/>
+  <title type="html">ArXiv Query: search_query=all:vision language</title>
+  <id>http://arxiv.org/api/abc123</id>
+  <updated>2026-02-01T00:00:00-05:00</updated>
+  <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">12345</opensearch:totalResults>
+  <entry>
+    <id>http://arxiv.org/abs/2401.01234v1</id>
+    <updated>2026-01-15T18:00:00Z</updated>
+    <published>2026-01-15T18:00:00Z</published>
+    <title>Scaling Vision-Language Pretraining with Synthetic Captions</title>
+    <summary>  We present a scalable recipe for vision-language pretraining that replaces
+noisy web captions with model-generated synthetic captions, improving downstream
+zero-shot accuracy while reducing data requirements.  </summary>
+    <author><name>Jane Doe</name></author>
+    <author><name>John Smith</name></author>
+    <link href="http://arxiv.org/abs/2401.01234v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2401.01234v1" rel="related" type="application/pdf"/>
+    <category term="cs.CV" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2402.05678v2</id>
+    <updated>2026-02-01T09:30:00Z</updated>
+    <published>2026-01-28T09:30:00Z</published>
+    <title>Efficient LoRA Fine-Tuning for Multimodal Models</title>
+    <summary>  We study parameter-efficient fine-tuning of large multimodal models and
+introduce a LoRA variant tailored to cross-attention layers.  </summary>
+    <author><name>Mina Park</name></author>
+    <link href="http://arxiv.org/pdf/2402.05678v2" rel="related" type="application/pdf" title="pdf"/>
+    <link href="http://arxiv.org/abs/2402.05678v2" rel="alternate" type="text/html"/>
+    <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>

@@ -1,0 +1,11 @@
+node_modules/
+*.log
+.DS_Store
+
+# generated reader output (rendered from the fixture during local dev)
+fixtures/index.html
+
+# local config holding API keys — never commit
+config.json
+.env
+.env.*

@@ -1,0 +1,39 @@
+{
+  "total": 2,
+  "offset": 0,
+  "data": [
+    {
+      "paperId": "p0abcdef",
+      "externalIds": { "DOI": "10.1234/abc", "ArXiv": "2401.01234", "CorpusId": 111 },
+      "title": "Scaling Vision-Language Pretraining with Synthetic Captions",
+      "abstract": "We present a scalable recipe for vision-language pretraining that replaces noisy web captions with model-generated synthetic captions.",
+      "venue": "NeurIPS",
+      "year": 2026,
+      "publicationDate": "2026-01-15",
+      "citationCount": 142,
+      "influentialCitationCount": 12,
+      "fieldsOfStudy": ["Computer Science"],
+      "tldr": { "model": "tldr@v2.0", "text": "A short, model-generated summary of the paper." },
+      "openAccessPdf": { "url": "https://example.org/paper.pdf", "status": "GREEN" },
+      "authors": [
+        { "authorId": "1", "name": "Jane Doe" },
+        { "authorId": "2", "name": "John Smith" }
+      ]
+    },
+    {
+      "paperId": "p1ghijkl",
+      "externalIds": { "ArXiv": "2402.05678", "CorpusId": 222 },
+      "title": "Efficient LoRA Fine-Tuning for Multimodal Models",
+      "abstract": "We study parameter-efficient fine-tuning of large multimodal models and introduce a LoRA variant tailored to cross-attention layers.",
+      "venue": "ICLR",
+      "year": 2026,
+      "publicationDate": "2026-01-28",
+      "citationCount": 38,
+      "influentialCitationCount": 3,
+      "fieldsOfStudy": ["Computer Science"],
+      "tldr": null,
+      "openAccessPdf": null,
+      "authors": [{ "authorId": "3", "name": "Mina Park" }]
+    }
+  ]
+}
