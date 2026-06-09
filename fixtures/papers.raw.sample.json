@@ -1,0 +1,168 @@
+{
+  "meta": {
+    "topic": "vision language model fine-tuning",
+    "query": "vision language model fine-tuning",
+    "slug": "vision-language-model-fine-tuning",
+    "since": "2024-12-01",
+    "sources": {
+      "arxiv": 25,
+      "s2": 18,
+      "openalex": 25
+    },
+    "total": 5
+  },
+  "papers": [
+    {
+      "id": "arxiv:2402.05678",
+      "title": "Efficient LoRA Fine-Tuning for Multimodal Models",
+      "authors": [
+        "Mina Park",
+        "Lee Wong"
+      ],
+      "abstract": "We study parameter-efficient fine-tuning of large multimodal models and introduce a LoRA variant tailored to cross-attention layers, reducing trainable parameters by 6x.",
+      "tldr": "A cross-attention-focused LoRA that cuts VLM fine-tuning cost ~6x with no accuracy loss.",
+      "publishedDate": "2026-01-28",
+      "year": 2026,
+      "venue": "ICLR",
+      "citationCount": 38,
+      "influentialCitationCount": 3,
+      "fields": [
+        "cs.LG",
+        "cs.CV"
+      ],
+      "sources": [
+        "arxiv",
+        "s2"
+      ],
+      "arxivId": "2402.05678",
+      "doi": null,
+      "links": {
+        "pdf": "https://arxiv.org/pdf/2402.05678",
+        "arxiv": "https://arxiv.org/abs/2402.05678",
+        "doi": null,
+        "landing": null
+      }
+    },
+    {
+      "id": "doi:10.1234/abc",
+      "title": "Scaling Vision-Language Pretraining with Synthetic Captions",
+      "authors": [
+        "Jane Doe",
+        "John Smith"
+      ],
+      "abstract": "We present a scalable recipe for vision-language pretraining that replaces noisy web captions with model-generated synthetic captions, improving downstream zero-shot accuracy.",
+      "tldr": "Synthetic captions beat noisy web captions for VLM pretraining at lower data cost.",
+      "publishedDate": "2026-01-15",
+      "year": 2026,
+      "venue": "NeurIPS",
+      "citationCount": 142,
+      "influentialCitationCount": 12,
+      "fields": [
+        "Computer Science"
+      ],
+      "sources": [
+        "arxiv",
+        "s2",
+        "openalex"
+      ],
+      "arxivId": "2401.01234",
+      "doi": "10.1234/abc",
+      "links": {
+        "pdf": "https://example.org/paper.pdf",
+        "arxiv": "https://arxiv.org/abs/2401.01234",
+        "doi": "https://doi.org/10.1234/abc",
+        "landing": "https://www.semanticscholar.org/paper/p0abcdef"
+      }
+    },
+    {
+      "id": "arxiv:2404.22222",
+      "title": "Exploring Adversarial Robustness and Safety Alignment in Multimodal LLMs",
+      "authors": [
+        "R. Garcia",
+        "T. Nguyen",
+        "S. Ali"
+      ],
+      "abstract": "We benchmark adversarial robustness of instruction-tuned multimodal LLMs and find systematic failures under imperceptible image perturbations.",
+      "tldr": "Instruction-tuned VLMs are brittle to imperceptible image attacks; a new benchmark quantifies it.",
+      "publishedDate": "2026-02-10",
+      "year": 2026,
+      "venue": "arXiv",
+      "citationCount": 9,
+      "influentialCitationCount": 0,
+      "fields": [
+        "cs.CV",
+        "cs.CR"
+      ],
+      "sources": [
+        "arxiv"
+      ],
+      "arxivId": "2404.22222",
+      "doi": null,
+      "links": {
+        "pdf": "https://arxiv.org/pdf/2404.22222",
+        "arxiv": "https://arxiv.org/abs/2404.22222",
+        "doi": null,
+        "landing": null
+      }
+    },
+    {
+      "id": "arxiv:2403.11111",
+      "title": "Video2LoRA: Parametric Video Internalization for Vision-Language Models",
+      "authors": [
+        "K. Tanaka"
+      ],
+      "abstract": "We internalize long videos into compact LoRA weights, enabling VLMs to answer questions about hours-long footage without re-encoding.",
+      "tldr": "Encodes a whole video into LoRA weights so a VLM can reason over hours of footage cheaply.",
+      "publishedDate": "2026-02-02",
+      "year": 2026,
+      "venue": "arXiv",
+      "citationCount": 5,
+      "influentialCitationCount": 0,
+      "fields": [
+        "cs.CV"
+      ],
+      "sources": [
+        "arxiv"
+      ],
+      "arxivId": "2403.11111",
+      "doi": null,
+      "links": {
+        "pdf": "https://arxiv.org/pdf/2403.11111",
+        "arxiv": "https://arxiv.org/abs/2403.11111",
+        "doi": null,
+        "landing": null
+      }
+    },
+    {
+      "id": "arxiv:2405.33333",
+      "title": "Visual Instruction Tuning Aligns Modalities through Abstraction",
+      "authors": [
+        "P. Müller",
+        "O. Costa"
+      ],
+      "abstract": "We analyze why visual instruction tuning works and show it primarily aligns modalities at an abstract semantic level rather than pixel grounding.",
+      "tldr": "Visual instruction tuning aligns modalities semantically, not at the pixel level.",
+      "publishedDate": "2026-02-18",
+      "year": 2026,
+      "venue": "arXiv",
+      "citationCount": 14,
+      "influentialCitationCount": 1,
+      "fields": [
+        "cs.CV",
+        "cs.CL"
+      ],
+      "sources": [
+        "arxiv",
+        "openalex"
+      ],
+      "arxivId": "2405.33333",
+      "doi": null,
+      "links": {
+        "pdf": "https://arxiv.org/pdf/2405.33333",
+        "arxiv": "https://arxiv.org/abs/2405.33333",
+        "doi": null,
+        "landing": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "paper-boy",
+  "version": "0.1.0",
+  "description": "Fetch real recent academic papers on a topic and deliver them as a self-contained interactive HTML reader, with Markdown / JSON / BibTeX export.",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "keywords": ["arxiv", "openalex", "semantic-scholar", "research", "papers", "literature-review", "claude-code"],
+  "bin": {
+    "paper-boy-fetch": "bin/fetch.mjs",
+    "paper-boy-enrich": "bin/enrich.mjs",
+    "paper-boy-render": "bin/render.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "test:offline": "PAPER_BOY_SKIP_NET=1 node --test test/*.test.mjs"
+  }
+}
