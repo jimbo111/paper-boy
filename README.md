@@ -155,6 +155,21 @@ The reader's **Export** menu downloads everything client-side, with nothing writ
 server: the Markdown report, the enriched JSON, a **BibTeX** library, and an **RIS** file
 for direct import into Zotero, Mendeley, or EndNote.
 
+## Going deeper from the reader (bring your own key)
+
+Every report ships with full summaries already written — no key needed to read it. If you
+want to dig further into a specific paper, the reader has an **AI key** panel: paste your
+own Anthropic or OpenAI key and a **✨ Go deeper** button on each paper produces a live
+structured analysis (findings, method, limitations, significance).
+
+- The key is sent **directly from the page to the provider you choose** and is never
+  written into any download. Choose **session-only** (held until you close the tab) or
+  **remember on this device** (stored in the browser's local storage).
+- In-browser analysis is **abstract-based** — browsers can't fetch paper full text
+  (CORS), so for full-text deep-dives use the standalone `enrich` CLI.
+- Only Anthropic and OpenAI are offered here, because most other endpoints block
+  direct browser calls.
+
 ## Output
 
 Runs land in `~/paper-boy/<slug>/<date>/`:

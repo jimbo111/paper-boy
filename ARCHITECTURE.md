@@ -56,7 +56,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 - `lib/html.mjs` — token replacement and `</script>`-safe data embedding.
 - `lib/bibtex.mjs` — per-paper BibTeX generation.
 - `lib/ris.mjs` — per-paper RIS generation (Zotero / Mendeley / EndNote import).
-- `template/reader.html` — the reader UI (vanilla JS, inline CSS); `template/fonts/` holds the inlined typeface.
+- `template/reader.html` — the reader UI (vanilla JS, inline CSS); `template/fonts/` holds the inlined typeface. Also hosts the optional **bring-your-own-key** panel: a reader can paste an Anthropic or OpenAI key and trigger a live, abstract-based "Go deeper" analysis per paper, called directly from the browser. The key stays client-side (session-only or localStorage) and is never serialized into any export.
 
 ## JSON contracts
 

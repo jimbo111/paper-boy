@@ -227,6 +227,34 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
 .empty-note { font-style:italic; color:var(--muted); padding:30px 0; }
 .hidden { display:none !important; }
 
+/* ---- bring-your-own-key panel + in-page deep dive ---------------------- */
+.key-wrap { position:relative; }
+.keymenu { width:320px; }
+.kbody { padding:13px 15px 15px; font-family:var(--sans); }
+.kbody label { display:block; font-size:.6rem; text-transform:uppercase; letter-spacing:.14em;
+  font-weight:700; color:var(--faint); margin:11px 0 4px; }
+.kbody select, .kbody input[type=text], .kbody input[type=password] {
+  width:100%; box-sizing:border-box; font-family:var(--sans); font-size:.82rem; color:var(--ink);
+  padding:8px 9px; border:1px solid var(--rule-2); background:var(--paper); }
+.kbody select:focus, .kbody input:focus { outline:none; border-color:var(--accent); }
+.krem { display:flex !important; align-items:center; gap:7px; text-transform:none !important;
+  letter-spacing:0 !important; font-size:.74rem !important; color:var(--ink-2) !important; margin-top:12px; cursor:pointer; }
+.krem input { width:auto; }
+.knote { font-size:.68rem; line-height:1.45; color:var(--faint); margin:11px 0 0; }
+.kactions { display:flex; align-items:center; gap:9px; margin-top:13px; }
+.kstate { font-size:.68rem; color:var(--accent-d); margin-left:auto; }
+.deep-zone { margin-top:22px; }
+.deep-card { border:1px solid var(--rule-2); border-left:3px solid var(--accent); background:var(--surface);
+  padding:15px 17px; margin-top:10px; }
+.deep-card .dt { font-family:var(--sans); font-size:.6rem; text-transform:uppercase; letter-spacing:.14em;
+  font-weight:700; color:var(--faint); margin:13px 0 5px; }
+.deep-card .dt:first-child { margin-top:0; }
+.deep-flag { font-family:var(--sans); font-size:.66rem; color:var(--faint); font-style:italic; margin-top:12px; }
+.deep-err { font-family:var(--sans); font-size:.74rem; color:var(--accent-d); }
+.spin { display:inline-block; width:13px; height:13px; border:2px solid var(--rule-2);
+  border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
 /* ---- one orchestrated entrance (first paint only) ---------------------- */
 @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
 .masthead, .deck { animation:rise .6s cubic-bezier(.2,.7,.2,1) both; }
@@ -272,6 +300,32 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     <div class="seg" role="group" aria-label="View">
       <button id="viewDash" class="on" onclick="setView('dashboard')">Front&nbsp;Page</button>
       <button id="viewRead" onclick="setView('reader')">Reader</button>
+    </div>
+    <div class="key-wrap">
+      <button class="export-btn" id="keyBtn" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.65 10A6 6 0 1 0 11 13.65L15 18h3v-3h2v-3h-7.35zM7 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>AI key
+      </button>
+      <div class="menu keymenu" id="keyMenu" role="menu" aria-label="AI key settings">
+        <div class="mhead">Bring your own AI key</div>
+        <div class="kbody">
+          <label for="kProvider">Provider</label>
+          <select id="kProvider">
+            <option value="anthropic">Anthropic · Claude</option>
+            <option value="openai">OpenAI · GPT</option>
+          </select>
+          <label for="kModel">Model</label>
+          <input id="kModel" type="text" autocomplete="off" spellcheck="false">
+          <label for="kKey">API key</label>
+          <input id="kKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…">
+          <label class="krem" for="kRemember"><input type="checkbox" id="kRemember"> Remember on this device</label>
+          <p class="knote">Your key is sent only to the provider you pick, directly from this page, and is never written into any download. “Remember” stores it in this browser’s local storage; otherwise it is kept only until you close the tab.</p>
+          <div class="kactions">
+            <button type="button" id="kSave" class="btn primary">Save</button>
+            <button type="button" id="kClear" class="btn">Clear</button>
+            <span class="kstate" id="kState"></span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="export-wrap">
       <button class="export-btn" id="exportBtn" aria-haspopup="true" aria-expanded="false">
@@ -493,9 +547,28 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       if (p.links && p.links.pdf) h += '<a class="btn" href="' + esc(safeUrl(p.links.pdf)) + '" target="_blank" rel="noopener noreferrer">PDF</a>';
       h += '<button type="button" class="btn" data-act="bib" data-id="' + esc(p.id) + '" id="bibBtn">Copy BibTeX</button>';
       h += '<button type="button" class="btn ' + (read.has(p.id) ? 'on' : '') + '" data-act="read" data-id="' + esc(p.id) + '" id="readBtn">' + (read.has(p.id) ? '✓ Read' : 'Mark read') + '</button>';
+      h += '<button type="button" class="btn" data-act="deeper" data-id="' + esc(p.id) + '">✨ Go deeper</button>';
       h += '</div><div class="hint">j / k or ↑ / ↓ to navigate · ⏎ opens the paper · click any source tag to verify</div>';
+      h += '<div class="deep-zone" id="deepZone">' + deepHtml(p.id) + '</div>';
       el.innerHTML = h;
       el.scrollTop = 0;
+    }
+
+    // Renders the in-page deep-dive state for a paper (idle/loading/done/error).
+    function deepHtml(id) {
+      var d = deepCache[id];
+      if (!d) return '';
+      if (d.status === 'loading') return '<div class="deep-card"><span class="spin"></span> <span class="deep-flag" style="font-style:normal">Analyzing with your ' + esc(LLM.provider) + ' key…</span></div>';
+      if (d.status === 'error') return '<div class="deep-card"><span class="dt">Deep dive failed</span><div class="deep-err">' + esc(d.error) + '</div></div>';
+      var a = d.data || {};
+      var s = '<div class="deep-card">';
+      if ((a.findings || []).length) s += '<span class="dt">Findings</span><ul class="findings">' + a.findings.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul>';
+      if (a.method) s += '<span class="dt">Method</span><p class="body">' + esc(a.method) + '</p>';
+      if ((a.limitations || []).length) s += '<span class="dt">Limitations</span><p class="body">' + esc(a.limitations.join('; ')) + '</p>';
+      if (a.significance) s += '<span class="dt">Significance</span><p class="body">' + esc(a.significance) + '</p>';
+      s += '<div class="deep-flag">Abstract-based · generated live with your ' + esc(LLM.provider) + ' key (' + esc(LLM.model) + '). Not written to any download.</div>';
+      s += '</div>';
+      return s;
     }
 
     // ---- downloads (client-side, from embedded data) ----
@@ -557,7 +630,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       if (node) node.scrollIntoView({ block: 'nearest' });
     }
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { setMenu(false); return; }
+      if (e.key === 'Escape') { setMenu(false); if (typeof setKeyMenu === 'function') setKeyMenu(false); return; }
       var typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT');
       // "/" focuses search from anywhere
       if (e.key === '/' && !typing) { e.preventDefault(); document.getElementById('search').focus(); return; }
@@ -584,6 +657,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       else if (act === 'cluster') { window.toggleCluster(t.getAttribute('data-cluster')); }
       else if (act === 'bib') { window.copyBib(id); }
       else if (act === 'read') { window.toggleRead(id); }
+      else if (act === 'deeper') { window.goDeeper(id); }
     });
 
     // ---- export menu ----
@@ -603,6 +677,113 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       else if (kind === 'ris') download('papers.ris', risAll(), 'application/x-research-info-systems;charset=utf-8');
       setMenu(false);
     });
+
+    // ---- bring-your-own-key: live, in-page deep dives -----------------------
+    // Default summaries are already in the report (no key needed). A key only powers
+    // the optional per-paper "Go deeper". It is sent directly to the chosen provider
+    // from this page and never written into any download.
+    var LLM_KEY = 'pb_llm';
+    var DEFAULT_MODEL = { anthropic: 'claude-haiku-4-5', openai: 'gpt-4o-mini' };
+    var deepCache = {};
+    var LLM = { provider: 'anthropic', model: DEFAULT_MODEL.anthropic, key: '', remember: false };
+    (function loadKey() {
+      try {
+        var raw = localStorage.getItem(LLM_KEY);
+        if (raw) { var s = JSON.parse(raw); LLM.provider = s.provider || LLM.provider; LLM.model = s.model || DEFAULT_MODEL[LLM.provider]; LLM.key = s.key || ''; LLM.remember = !!s.key; }
+      } catch (e) {}
+    })();
+    function persistKey() {
+      // Provider/model always persist; the key persists ONLY when "remember" is checked.
+      try {
+        var out = { provider: LLM.provider, model: LLM.model };
+        if (LLM.remember && LLM.key) out.key = LLM.key;
+        localStorage.setItem(LLM_KEY, JSON.stringify(out));
+      } catch (e) {}
+    }
+    var keyBtn = document.getElementById('keyBtn'), keyMenu = document.getElementById('keyMenu');
+    var kProvider = document.getElementById('kProvider'), kModel = document.getElementById('kModel'),
+        kKey = document.getElementById('kKey'), kRemember = document.getElementById('kRemember'), kState = document.getElementById('kState');
+    function setKeyMenu(open) {
+      keyMenu.classList.toggle('open', open); keyBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) { syncKeyForm(); setTimeout(function () { (LLM.key ? kKey : kKey).focus(); }, 0); }
+    }
+    function syncKeyForm() {
+      kProvider.value = LLM.provider; kModel.value = LLM.model; kRemember.checked = LLM.remember;
+      kKey.value = LLM.key; kState.textContent = LLM.key ? ('Key set · ' + LLM.provider) : 'No key set';
+    }
+    kProvider.addEventListener('change', function () {
+      // Swap the model default when switching providers, unless the user customised it.
+      if (!kModel.value || kModel.value === DEFAULT_MODEL.anthropic || kModel.value === DEFAULT_MODEL.openai) kModel.value = DEFAULT_MODEL[kProvider.value];
+    });
+    keyBtn.addEventListener('click', function (e) { e.stopPropagation(); setKeyMenu(!keyMenu.classList.contains('open')); });
+    document.addEventListener('click', function (e) {
+      if (keyMenu.classList.contains('open') && !keyMenu.contains(e.target) && e.target !== keyBtn) setKeyMenu(false);
+    });
+    document.getElementById('kSave').addEventListener('click', function () {
+      LLM.provider = kProvider.value; LLM.model = (kModel.value || '').trim() || DEFAULT_MODEL[LLM.provider];
+      LLM.key = (kKey.value || '').trim(); LLM.remember = kRemember.checked; persistKey(); syncKeyForm();
+      if (LLM.key) setKeyMenu(false);
+    });
+    document.getElementById('kClear').addEventListener('click', function () {
+      LLM.key = ''; LLM.remember = false; kKey.value = '';
+      try { localStorage.setItem(LLM_KEY, JSON.stringify({ provider: LLM.provider, model: LLM.model })); } catch (e) {}
+      syncKeyForm();
+    });
+
+    // Pull the first JSON object out of a model reply (handles fences / surrounding prose).
+    function parseModelJson(text) {
+      if (!text) throw new Error('empty response');
+      try { return JSON.parse(text); } catch (e) {}
+      var fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i); if (fenced) { try { return JSON.parse(fenced[1]); } catch (e) {} }
+      var i = text.search(/[{[]/); if (i >= 0) { var open = text[i], close = open === '{' ? '}' : ']', d = 0, q = false, esc2 = false;
+        for (var k = i; k < text.length; k++) { var c = text[k];
+          if (q) { if (esc2) esc2 = false; else if (c === '\\') esc2 = true; else if (c === '"') q = false; continue; }
+          if (c === '"') q = true; else if (c === open) d++; else if (c === close) { d--; if (!d) { return JSON.parse(text.slice(i, k + 1)); } } } }
+      throw new Error('could not parse JSON from the model reply');
+    }
+
+    var SYS = 'You are a careful research assistant. Ground every statement strictly in the provided abstract and metadata. Never invent results, numbers, authors, or claims. If something is not in the abstract, do not state it. Output only JSON.';
+    function deepPrompt(p) {
+      var meta = [p.title ? 'Title: ' + p.title : '', p.venue ? 'Venue: ' + p.venue : '', p.year ? 'Year: ' + p.year : '',
+        (p.authors || []).length ? 'Authors: ' + p.authors.join(', ') : '', 'Abstract: ' + (p.abstract || '(none provided)')].filter(Boolean).join('\n');
+      return meta + '\n\nTopic of interest: ' + (DATA.meta && DATA.meta.topic || 'this field') +
+        '\n\nReturn ONLY JSON {"findings":[string],"method":string,"limitations":[string],"significance":string}: ' +
+        'findings = concrete results explicitly stated in the abstract; method = the approach in 1-2 lines; ' +
+        'limitations = stated or clearly implied limits (empty if none in the abstract); significance = why it matters for the topic. ' +
+        'This is abstract-based — do not fabricate full-text details. If the abstract is thin, keep arrays short and honest.';
+    }
+    async function callProvider(p) {
+      var body, url, headers;
+      if (LLM.provider === 'anthropic') {
+        url = 'https://api.anthropic.com/v1/messages';
+        headers = { 'content-type': 'application/json', 'x-api-key': LLM.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
+        body = { model: LLM.model, max_tokens: 1024, system: SYS, messages: [{ role: 'user', content: deepPrompt(p) }] };
+      } else {
+        url = 'https://api.openai.com/v1/chat/completions';
+        headers = { 'content-type': 'application/json', 'authorization': 'Bearer ' + LLM.key };
+        body = { model: LLM.model, max_tokens: 1024, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: SYS }, { role: 'user', content: deepPrompt(p) }] };
+      }
+      var res = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(body) });
+      if (!res.ok) { var t = ''; try { t = await res.text(); } catch (e) {} throw new Error('HTTP ' + res.status + (t ? ' · ' + t.slice(0, 160) : '')); }
+      var j = await res.json();
+      var text = LLM.provider === 'anthropic'
+        ? (j.content || []).filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('')
+        : (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
+      return parseModelJson(text);
+    }
+    window.goDeeper = function (id) {
+      var p = byId[id]; if (!p) return;
+      if (!LLM.key) { setKeyMenu(true); kState.textContent = 'Enter a key to go deeper'; return; }
+      if (deepCache[id] && deepCache[id].status === 'loading') return;
+      deepCache[id] = { status: 'loading' }; if (state.selected === id) renderDetail();
+      callProvider(p).then(function (data) {
+        deepCache[id] = { status: 'done', data: data };
+      }).catch(function (err) {
+        var msg = String(err && err.message || err);
+        if (/Failed to fetch|NetworkError|CORS/i.test(msg)) msg = 'The browser could not reach the provider (CORS or network). Anthropic and OpenAI are supported for in-page calls; other endpoints may block browser requests.';
+        deepCache[id] = { status: 'error', error: msg };
+      }).then(function () { if (state.selected === id) renderDetail(); });
+    };
 
     function chips(containerId, values, set) {
       var el = document.getElementById(containerId);
