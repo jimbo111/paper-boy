@@ -103,7 +103,7 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 .mitem:hover { background:var(--paper-2); }
 .mitem .ic { width:30px; height:30px; display:flex; align-items:center; justify-content:center;
   font-family:var(--mono); font-weight:700; font-size:.66rem; color:var(--paper); flex:none; }
-.ic.md { background:var(--ink); } .ic.json { background:var(--s2); } .ic.bib { background:var(--accent); }
+.ic.md { background:var(--ink); } .ic.json { background:var(--s2); } .ic.bib { background:var(--accent); } .ic.ris { background:#5b6e3f; font-size:10px; }
 .mitem .tt { font-family:var(--sans); font-weight:600; font-size:.82rem; display:block; }
 .mitem .ss { font-family:var(--sans); color:var(--muted); font-size:.7rem; margin-top:1px; display:block; }
 .menu .mfoot { padding:9px 15px; font-family:var(--sans); color:var(--faint); font-size:.68rem; font-style:normal; }
@@ -282,6 +282,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
         <button class="mitem" data-dl="md" role="menuitem"><span class="ic md">MD</span><span><span class="tt">Markdown report</span><span class="ss">report.md — the full write-up</span></span></button>
         <button class="mitem" data-dl="json" role="menuitem"><span class="ic json">{ }</span><span><span class="tt">Enriched JSON</span><span class="ss">papers.enriched.json — all data</span></span></button>
         <button class="mitem" data-dl="bib" role="menuitem"><span class="ic bib">&#10078;</span><span><span class="tt">BibTeX library</span><span class="ss">papers.bib — every citation</span></span></button>
+        <button class="mitem" data-dl="ris" role="menuitem"><span class="ic ris">RIS</span><span><span class="tt">RIS / Zotero</span><span class="ss">papers.ris — import into Zotero, Mendeley, EndNote</span></span></button>
         <div class="mfoot">Nothing leaves this page.</div>
       </div>
     </div>
@@ -478,6 +479,15 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
         if ((p.deepDive.limitations || []).length) h += '<span class="section-t">Limitations</span><p class="body">' + esc(p.deepDive.limitations.join('; ')) + '</p>';
       }
       if (p.abstract) h += '<span class="section-t">Abstract</span><p class="body">' + esc(p.abstract) + '</p>';
+      if (p.related && p.related.length) {
+        h += '<span class="section-t">Related work · most-cited references</span><ul class="findings">';
+        h += p.related.map(function (r) {
+          var label = esc(r.title || 'Untitled') + (r.year ? ' (' + r.year + ')' : '')
+            + (Number.isFinite(r.citationCount) ? ' · ' + r.citationCount + ' citations' : '');
+          return '<li>' + (r.link ? '<a href="' + esc(safeUrl(r.link)) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>' : label) + '</li>';
+        }).join('');
+        h += '</ul>';
+      }
       h += '<div class="actions">';
       if (link) h += '<a class="btn primary" href="' + esc(safeUrl(link)) + '" target="_blank" rel="noopener noreferrer">Open paper ↗</a>';
       if (p.links && p.links.pdf) h += '<a class="btn" href="' + esc(safeUrl(p.links.pdf)) + '" target="_blank" rel="noopener noreferrer">PDF</a>';
@@ -501,11 +511,14 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     // the download matches the on-disk audit file exactly.
     function enrichedJson() {
       var d = JSON.parse(JSON.stringify(DATA));
-      (d.papers || []).forEach(function (p) { delete p.bibtex; });
+      (d.papers || []).forEach(function (p) { delete p.bibtex; delete p.ris; });
       return JSON.stringify(d, null, 2);
     }
     function bibAll() {
       return papers.map(function (p) { return p.bibtex || ''; }).filter(Boolean).join('\n\n') + '\n';
+    }
+    function risAll() {
+      return papers.map(function (p) { return p.ris || ''; }).filter(Boolean).join('\n\n') + '\n';
     }
 
     // ---- interactions (exposed on window for inline handlers) ----
@@ -587,6 +600,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       if (kind === 'md') download('report.md', REPORT_MD, 'text/markdown;charset=utf-8');
       else if (kind === 'json') download('papers.enriched.json', enrichedJson(), 'application/json;charset=utf-8');
       else if (kind === 'bib') download('papers.bib', bibAll(), 'application/x-bibtex;charset=utf-8');
+      else if (kind === 'ris') download('papers.ris', risAll(), 'application/x-research-info-systems;charset=utf-8');
       setMenu(false);
     });
 

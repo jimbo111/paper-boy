@@ -76,6 +76,24 @@ test('a per-paper failure does not abort and keeps raw fields', async () => {
   assert.ok(out.papers.length >= 1);
 });
 
+test('related-work expansion is off by default, on with --related', async () => {
+  const off = await enrichAll({ raw, client: mockClient(), fetchFullText: fakeFullText, today: '2026-06-08' });
+  assert.ok(off.papers.every((p) => !('related' in p)), 'no related field without an expander');
+
+  const expandRelated = async (p, { max }) => Array.from({ length: max }, (_, i) => ({ id: `ref${i}`, title: `Ref ${i} for ${p.id}` }));
+  const on = await enrichAll({ raw, client: mockClient(), fetchFullText: fakeFullText, expandRelated, related: 3, today: '2026-06-08' });
+  const must = on.papers.filter((p) => p.mustRead);
+  assert.ok(must.length > 0);
+  assert.ok(must.every((p) => Array.isArray(p.related) && p.related.length === 3), 'must-reads get related work');
+  assert.ok(on.papers.filter((p) => !p.mustRead).every((p) => !('related' in p)), 'non-must-reads untouched');
+});
+
+test('a failing related expander does not abort the run', async () => {
+  const expandRelated = async () => { throw new Error('openalex down'); };
+  const out = await enrichAll({ raw, client: mockClient(), fetchFullText: fakeFullText, expandRelated, related: 2, today: '2026-06-08' });
+  assert.ok(out.papers.filter((p) => p.mustRead).every((p) => Array.isArray(p.related) && p.related.length === 0));
+});
+
 test('abstract-only deep-dive is flagged and not fabricated', async () => {
   const ft = async () => ({ text: 'abs', source: 'abstract' });
   const out = await enrichAll({ raw, client: mockClient(), fetchFullText: ft, today: '2026-06-08', deep: 1 });

@@ -128,5 +128,8 @@ node bin/render.mjs --in run/papers.enriched.json
   or `PAPER_BOY_API_KEY`, or `--api-key`, or `~/.config/paper-boy/config.json`.
 - **Precedence:** flag > env var > config file > default.
 - **Deep-dive ladder:** ar5iv HTML → arXiv HTML → abstract-only (flagged, never fabricated).
+- **Optional `--related N`:** expand each must-read's most-cited references via the
+  OpenAlex citation graph (deterministic, no key). Off by default.
+- **Exports:** the reader's Export menu offers Markdown, JSON, BibTeX, and RIS (Zotero).
 
 See `README.md` for the full flag/config reference.

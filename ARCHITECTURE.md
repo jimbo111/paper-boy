@@ -47,6 +47,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 - `lib/enrich/prompts.mjs` — prompt text + JSON schemas + the anti-fabrication guardrail.
 - `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, tiered full-text deep-dives, and trending synthesis.
 - `lib/fulltext/extract.mjs` — the dependency-free full-text ladder (ar5iv → arXiv HTML → abstract) and HTML-to-text stripper.
+- `lib/sources/openalex.mjs` — also exposes `fetchRelated`, the optional citation-graph expander that attaches each must-read's most-cited references (`--related N`, off by default).
 
 ### Stage 3 — render
 
@@ -54,6 +55,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 - `lib/markdown.mjs` — the Markdown report renderer (embedded for the in-reader export).
 - `lib/html.mjs` — token replacement and `</script>`-safe data embedding.
 - `lib/bibtex.mjs` — per-paper BibTeX generation.
+- `lib/ris.mjs` — per-paper RIS generation (Zotero / Mendeley / EndNote import).
 - `template/reader.html` — the reader UI (vanilla JS, inline CSS); `template/fonts/` holds the inlined typeface.
 
 ## JSON contracts

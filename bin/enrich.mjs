@@ -7,6 +7,7 @@ import { makeClient } from '../lib/llm/client.mjs';
 import { makeFakeClient } from '../lib/llm/fake.mjs';
 import { enrichAll } from '../lib/enrich/orchestrate.mjs';
 import { fetchFullText } from '../lib/fulltext/extract.mjs';
+import { fetchRelated } from '../lib/sources/openalex.mjs';
 
 function parseArgs(argv) {
   const o = {};
@@ -23,6 +24,7 @@ function parseArgs(argv) {
     else if (a === '--deep') flags.deep = Number(argv[++i]);
     else if (a === '--concurrency') flags.maxConcurrency = Number(argv[++i]);
     else if (a === '--rps') flags.rps = Number(argv[++i]);
+    else if (a === '--related') o.related = Number(argv[++i]); // optional citation-graph expansion (0 = off)
   }
   return { o, flags };
 }
@@ -63,10 +65,17 @@ async function main() {
     });
   }
 
+  // Optional citation-graph related-work expansion (--related N). Off by default;
+  // deterministic OpenAlex calls, no LLM key needed.
+  const related = Number.isFinite(o.related) && o.related > 0 ? Math.floor(o.related) : 0;
+  const expandRelated = related ? (paper, opts) => fetchRelated(paper, opts) : null;
+
   const enriched = await enrichAll({
     raw,
     client,
     fetchFullText,
+    expandRelated,
+    related,
     today: today(),
     deep: cfg.deep,
     maxConcurrency: cfg.maxConcurrency,

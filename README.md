@@ -135,6 +135,26 @@ Reliable PDF text extraction with zero dependencies is not feasible, so paper-bo
 in as an optional escape hatch, but the default path relies on HTML renders. A failed
 deep-dive never aborts the run — that paper simply keeps its abstract-level summary.
 
+## Related work (optional)
+
+Pass `--related N` to enrich to expand each must-read paper's **most-cited references**
+via the OpenAlex citation graph. This is deterministic (no AI key required) and off by
+default:
+
+```bash
+node bin/enrich.mjs --in run/papers.raw.json --related 5
+```
+
+Each must-read then carries a `related[]` list (title, authors, year, citations, link),
+shown in the reader under the paper and never fabricated — an unreachable reference list
+simply yields an empty result.
+
+## Exports
+
+The reader's **Export** menu downloads everything client-side, with nothing written to a
+server: the Markdown report, the enriched JSON, a **BibTeX** library, and an **RIS** file
+for direct import into Zotero, Mendeley, or EndNote.
+
 ## Output
 
 Runs land in `~/paper-boy/<slug>/<date>/`:

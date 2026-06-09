@@ -20,6 +20,12 @@ test('embedded data is parseable and complete', () => {
   const parsed = JSON.parse(m[1].replace(/\\u003c/g, '<').replace(/\\u003e/g, '>'));
   assert.equal(parsed.papers.length, data.papers.length);
   assert.ok(parsed.papers.every((p) => typeof p.bibtex === 'string'));
+  assert.ok(parsed.papers.every((p) => typeof p.ris === 'string'), 'ris precomputed for every paper');
+});
+
+test('reader offers an RIS / Zotero export action', () => {
+  const html = renderHtml(data, tpl);
+  assert.ok(html.includes('data-dl="ris"'), 'RIS download action present in the export menu');
 });
 
 test('stays self-contained — no external asset references', () => {
