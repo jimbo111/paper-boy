@@ -9,3 +9,7 @@ fixtures/index.html
 config.json
 .env
 .env.*
+
+# local working notes and review scratch — not part of the public repo
+CLAUDE.md
+.ui-design/
