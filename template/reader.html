@@ -93,8 +93,8 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
   border:1px solid var(--accent); color:var(--accent-d); background:var(--surface); }
 .export-btn:hover { background:var(--accent); color:var(--paper); }
 .export-btn svg { width:13px; height:13px; fill:currentColor; }
-.menu { display:none; position:absolute; right:0; top:42px; width:280px; z-index:40; background:var(--surface);
-  border:1px solid var(--ink); box-shadow:6px 7px 0 rgba(29,26,21,.12); }
+.menu { display:none; position:absolute; right:0; top:42px; width:280px; max-width:calc(100vw - 20px);
+  z-index:40; background:var(--surface); border:1px solid var(--ink); box-shadow:6px 7px 0 rgba(29,26,21,.12); }
 .menu.open { display:block; }
 .menu .mhead { padding:11px 15px 6px; font-family:var(--sans); font-size:.62rem; text-transform:uppercase;
   letter-spacing:.16em; color:var(--faint); font-weight:700; border-bottom:1px solid var(--rule); }
@@ -156,7 +156,8 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 .section-head { display:flex; align-items:baseline; gap:12px; border-bottom:2px solid var(--ink);
   padding-bottom:7px; margin-bottom:4px; width:100%; text-align:left; }
 .section-head .dot { width:9px; height:9px; flex:none; align-self:center; }
-.section-head h2 { font-family:var(--serif); font-weight:600; font-size:1.4rem; letter-spacing:-.01em; margin:0; }
+.shx, .lh3 { margin:0; font:inherit; }
+.section-head h2, .section-head .sh-name { font-family:var(--serif); font-weight:600; font-size:1.4rem; letter-spacing:-.01em; margin:0; }
 .section-head .ct { font-family:var(--mono); font-size:.8rem; color:var(--muted); }
 .section-head .tw { margin-left:auto; font-family:var(--sans); font-size:.66rem; text-transform:uppercase;
   letter-spacing:.1em; color:var(--faint); }
@@ -166,13 +167,15 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 @media (max-width:560px){ .feed{ columns:1; } }
 
 .entry { display:block; width:100%; text-align:left; break-inside:avoid; padding:14px 0;
-  border-top:1px solid var(--rule); transition:opacity .15s; }
+  border-top:1px solid var(--rule); }
 .feed .entry:first-child { border-top:0; padding-top:2px; }
-.entry.read { opacity:.5; }
-.entry-hl { font-family:var(--serif); font-weight:600; font-size:1.12rem; line-height:1.22;
+/* "read" must stay AA-readable — recolor to the muted ink instead of fading the block */
+.entry.read .entry-hl, .entry.read .entry-blurb { color:var(--muted); }
+.entry.read .entry-hl::after { content:" \2713"; content:" \2713" / ""; font-size:.8em; color:var(--muted); }
+.entry-hl { display:block; font-family:var(--serif); font-weight:600; font-size:1.12rem; line-height:1.22;
   letter-spacing:-.005em; margin:0 0 5px; }
 .entry:hover .entry-hl { color:var(--accent-d); text-decoration:underline; text-underline-offset:2px; }
-.entry.must .entry-hl::before { content:"\2605"; color:var(--accent); font-size:.8em; margin-right:5px; vertical-align:1px; }
+.entry.must .entry-hl::before { content:"\2605"; content:"\2605" / ""; color:var(--accent); font-size:.8em; margin-right:5px; vertical-align:1px; }
 .entry-blurb { font-size:.95rem; line-height:1.45; color:var(--ink-2); margin:5px 0 0;
   display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden; }
 
@@ -187,9 +190,10 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 .cites { font-family:var(--mono); font-size:.7rem; color:var(--muted); }
 
 /* ---- reader (two-pane) ------------------------------------------------- */
-#reader { display:none; scroll-margin-top:58px; }
+#reader { display:none; scroll-margin-top:var(--deck-h,58px); }
 #reader.on { display:grid; grid-template-columns:minmax(270px,360px) 1fr;
-  border-top:2px solid var(--ink); height:calc(100vh - 58px); }
+  border-top:2px solid var(--ink);
+  height:calc(100vh - var(--deck-h,58px)); height:calc(100dvh - var(--deck-h,58px)); }
 .rlist { overflow-y:auto; border-right:1px solid var(--rule-2); padding-right:2px;
   scrollbar-width:thin; }
 .ritem { display:block; width:100%; text-align:left; padding:13px 16px 13px 14px;
@@ -197,8 +201,8 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 .ritem:hover { background:var(--paper-2); }
 .ritem.sel { background:var(--surface); border-left-color:var(--accent); }
 .ritem.read .ritem-hl { color:var(--faint); }
-.ritem.must .ritem-hl::before { content:"\2605"; color:var(--accent); font-size:.8em; margin-right:4px; vertical-align:1px; }
-.ritem-hl { font-family:var(--serif); font-weight:600; font-size:1.02rem; line-height:1.2; margin:0 0 5px; }
+.ritem.must .ritem-hl::before { content:"\2605"; content:"\2605" / ""; color:var(--accent); font-size:.8em; margin-right:4px; vertical-align:1px; }
+.ritem-hl { display:block; font-family:var(--serif); font-weight:600; font-size:1.02rem; line-height:1.2; margin:0 0 5px; }
 .rdetail { overflow-y:auto; padding:clamp(22px,3.4vw,52px); }
 .rdetail .empty { color:var(--faint); font-style:italic; text-align:center; margin-top:20vh; }
 .rdetail h1 { font-family:var(--serif); font-weight:600; font-size:clamp(1.7rem,3.2vw,2.4rem);
@@ -275,6 +279,13 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
   .lead { grid-template-columns:1fr; }
   .lead-aside { border-left:0; border-top:1px solid var(--rule-2); padding-left:0; padding-top:16px; }
 }
+@media print{
+  .deck, .filters, #reader, footer, .actions, .hint { display:none !important; }
+  #dashboard.hidden { display:block !important; }
+  .entry-blurb, .pick-blurb { display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; }
+  body { background:#fff; }
+  a { color:inherit; }
+}
 </style>
 </head>
 <body>
@@ -298,14 +309,14 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       <option value="citations">Sort · Most cited</option>
     </select>
     <div class="seg" role="group" aria-label="View">
-      <button id="viewDash" class="on" onclick="setView('dashboard')">Front&nbsp;Page</button>
-      <button id="viewRead" onclick="setView('reader')">Reader</button>
+      <button id="viewDash" class="on" aria-pressed="true" onclick="setView('dashboard')">Front&nbsp;Page</button>
+      <button id="viewRead" aria-pressed="false" onclick="setView('reader')">Reader</button>
     </div>
     <div class="key-wrap">
-      <button class="export-btn" id="keyBtn" aria-haspopup="true" aria-expanded="false">
+      <button class="export-btn" id="keyBtn" aria-haspopup="dialog" aria-expanded="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.65 10A6 6 0 1 0 11 13.65L15 18h3v-3h2v-3h-7.35zM7 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>AI key
       </button>
-      <div class="menu keymenu" id="keyMenu" role="menu" aria-label="AI key settings">
+      <div class="menu keymenu" id="keyMenu" role="dialog" aria-label="AI key settings">
         <div class="mhead">Bring your own AI key</div>
         <div class="kbody">
           <label for="kProvider">Provider</label>
@@ -369,6 +380,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     var read = new Set(JSON.parse(localStorage.getItem(READKEY) || '[]'));
     var CDOT = ['#b23a2e', '#2d6a6a', '#5b4c8c', '#9a7a1f', '#3a352e', '#7a4a2a'];
     var firstPaint = true;
+    var lastDetailId = null; // which paper the detail pane last showed — gates the scroll reset
 
     // Report markdown, embedded as a JSON string so it round-trips byte-for-byte.
     var REPORT_MD = '';
@@ -426,9 +438,9 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
 
     function entry(p) {
       return '<button type="button" class="entry ' + (read.has(p.id) ? 'read' : '') + (p.mustRead ? ' must' : '') + '" data-act="open" data-id="' + esc(p.id) + '">'
-        + '<div class="entry-hl">' + esc(p.title) + '</div>'
-        + '<div class="meta">' + metaRow(p) + '</div>'
-        + '<p class="entry-blurb">' + esc(p.summary || p.whatsNew || p.tldr || '') + '</p>'
+        + '<span class="entry-hl">' + esc(p.title) + '</span>'
+        + '<span class="meta">' + metaRow(p) + '</span>'
+        + '<span class="entry-blurb">' + esc(p.summary || p.whatsNew || p.tldr || '') + '</span>'
         + '</button>';
     }
 
@@ -448,7 +460,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
         var lead = starts[0];
         html += '<div class="lead"><div class="lead-main">'
           + '<span class="kick lk">Start here</span>'
-          + '<button type="button" class="lead-hl" data-act="open" data-id="' + esc(lead.id) + '">' + esc(lead.title) + '</button>'
+          + '<h3 class="lh3"><button type="button" class="lead-hl" data-act="open" data-id="' + esc(lead.id) + '">' + esc(lead.title) + '</button></h3>'
           + '<div class="lead-byline">' + esc(authorLine(lead)) + '</div>'
           + '<p class="lead-deck">' + esc(lead.summary || lead.whatsNew || lead.tldr || '') + '</p>'
           + '<div class="meta lead-meta">' + metaRow(lead) + '</div>'
@@ -475,10 +487,10 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
         if (!cps.length) return;
         var col = state.collapsed.has(c.name);
         html += '<section class="section">'
-          + '<button type="button" class="section-head" data-act="cluster" data-cluster="' + esc(c.name) + '" aria-expanded="' + (col ? 'false' : 'true') + '">'
+          + '<h2 class="shx"><button type="button" class="section-head" data-act="cluster" data-cluster="' + esc(c.name) + '" aria-expanded="' + (col ? 'false' : 'true') + '">'
           + '<span class="dot" style="background:' + CDOT[i % CDOT.length] + '"></span>'
-          + '<h2>' + esc(c.name) + '</h2><span class="ct">(' + cps.length + ')</span>'
-          + '<span class="tw">' + (col ? 'Show ▾' : 'Hide ▴') + '</span></button>'
+          + '<span class="sh-name">' + esc(c.name) + '</span><span class="ct">(' + cps.length + ')</span>'
+          + '<span class="tw">' + (col ? 'Show ▾' : 'Hide ▴') + '</span></button></h2>'
           + (col ? '' : (c.synthesis ? '<p class="section-synth">' + esc(c.synthesis) + '</p>' : '')
             + '<div class="feed">' + cps.map(entry).join('') + '</div>')
           + '</section>';
@@ -500,21 +512,21 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
 
     function renderReader() {
       var vis = visible();
+      // keep selection valid BEFORE painting, so the highlighted row always matches the detail pane
+      if (!vis.some(function (p) { return p.id === state.selected; })) state.selected = vis.length ? vis[0].id : null;
       var list = document.getElementById('rlist');
       list.innerHTML = vis.map(function (p) {
         return '<button type="button" class="ritem ' + (state.selected === p.id ? 'sel' : '') + ' ' + (read.has(p.id) ? 'read' : '') + (p.mustRead ? ' must' : '') + '" '
           + 'data-id="' + esc(p.id) + '" data-act="select" ' + (state.selected === p.id ? 'aria-current="true"' : '') + '>'
-          + '<div class="ritem-hl">' + esc(p.title) + '</div>'
-          + '<div class="meta">' + metaRow(p) + '</div></button>';
+          + '<span class="ritem-hl">' + esc(p.title) + '</span>'
+          + '<span class="meta">' + metaRow(p) + '</span></button>';
       }).join('') || '<p class="hint" style="padding:16px">No papers match the current filters.</p>';
-      // keep selection valid: if the selected paper was filtered out, fall back to the first visible
-      if (!vis.some(function (p) { return p.id === state.selected; })) state.selected = vis.length ? vis[0].id : null;
       renderDetail();
     }
     function renderDetail() {
       var el = document.getElementById('rdetail');
       var p = byId[state.selected];
-      if (!p) { el.innerHTML = '<div class="empty">Select a paper, or press <b>j</b> / <b>k</b> to move.</div>'; return; }
+      if (!p) { lastDetailId = null; el.innerHTML = '<div class="empty">Select a paper, or press <b>j</b> / <b>k</b> to move.</div>'; return; }
       var link = primaryLink(p);
       var h = '';
       h += '<div class="dline">';
@@ -551,7 +563,10 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       h += '</div><div class="hint">j / k or ↑ / ↓ to navigate · ⏎ opens the paper · click any source tag to verify</div>';
       h += '<div class="deep-zone" id="deepZone">' + deepHtml(p.id) + '</div>';
       el.innerHTML = h;
-      el.scrollTop = 0;
+      // jump to top only when the selection changed — re-renders of the same paper
+      // (mark read, deep-dive loading/result) keep the reading position
+      if (lastDetailId !== p.id) el.scrollTop = 0;
+      lastDetailId = p.id;
     }
 
     // Renders the in-page deep-dive state for a paper (idle/loading/done/error).
@@ -611,14 +626,27 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     window.toggleCluster = function (name) { if (state.collapsed.has(name)) state.collapsed.delete(name); else state.collapsed.add(name); renderDashboard(); };
     window.toggleRead = function (id) {
       if (read.has(id)) read.delete(id); else read.add(id);
-      localStorage.setItem(READKEY, JSON.stringify([...read]));
+      try { localStorage.setItem(READKEY, JSON.stringify([...read])); } catch (e) {} // storage may be unavailable (private mode) — the toggle still works for this session
       if (state.view === 'reader') renderReader(); else renderDashboard();
     };
     window.copyBib = function (id) {
       var p = byId[id]; if (!p) return;
-      navigator.clipboard.writeText(p.bibtex || '').then(function () {
-        var b = document.getElementById('bibBtn'); if (b) { b.textContent = 'Copied!'; setTimeout(function () { b.textContent = 'Copy BibTeX'; }, 1400); }
-      });
+      var b = document.getElementById('bibBtn');
+      function flash(msg) { if (b) { b.textContent = msg; setTimeout(function () { b.textContent = 'Copy BibTeX'; }, 1400); } }
+      if (!p.bibtex) { flash('No BibTeX'); return; }
+      function legacyCopy() { // execCommand path for contexts without the async clipboard API
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = p.bibtex; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          var ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          flash(ok ? 'Copied!' : 'Copy failed');
+        } catch (e) { flash('Copy failed'); }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(p.bibtex).then(function () { flash('Copied!'); }).catch(legacyCopy);
+      } else legacyCopy();
     };
 
     function moveSel(delta) {
@@ -630,8 +658,13 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       if (node) node.scrollIntoView({ block: 'nearest' });
     }
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { setMenu(false); if (typeof setKeyMenu === 'function') setKeyMenu(false); return; }
-      var typing = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT');
+      if (e.key === 'Escape') {
+        if (exportMenu.classList.contains('open')) { setMenu(false); exportBtn.focus(); }
+        if (keyMenu.classList.contains('open')) { setKeyMenu(false); keyBtn.focus(); }
+        return;
+      }
+      var t = e.target;
+      var typing = t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA');
       // "/" focuses search from anywhere
       if (e.key === '/' && !typing) { e.preventDefault(); document.getElementById('search').focus(); return; }
       if (typing) return;
@@ -639,6 +672,8 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
       else if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
       else if (e.key === 'Enter' && state.selected) {
+        // Enter on a focused control activates that control only — it must not also pop the paper
+        if (t && t.closest && t.closest('button, a, [tabindex]')) return;
         var p = byId[state.selected]; var link = p && primaryLink(p);
         if (link) window.open(safeUrl(link), '_blank', 'noopener,noreferrer');
       }
@@ -663,7 +698,11 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     // ---- export menu ----
     var exportBtn = document.getElementById('exportBtn');
     var exportMenu = document.getElementById('exportMenu');
-    function setMenu(open) { exportMenu.classList.toggle('open', open); exportBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+    function setMenu(open) {
+      if (open) setKeyMenu(false); // one dropdown at a time
+      exportMenu.classList.toggle('open', open); exportBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) setTimeout(function () { var f = exportMenu.querySelector('.mitem:not(.hidden)'); if (f) f.focus(); }, 0);
+    }
     exportBtn.addEventListener('click', function (e) { e.stopPropagation(); setMenu(!exportMenu.classList.contains('open')); });
     document.addEventListener('click', function (e) {
       if (exportMenu.classList.contains('open') && !exportMenu.contains(e.target) && e.target !== exportBtn) setMenu(false);
@@ -671,11 +710,23 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     exportMenu.addEventListener('click', function (e) {
       var it = e.target.closest('[data-dl]'); if (!it) return;
       var kind = it.getAttribute('data-dl');
-      if (kind === 'md') download('report.md', REPORT_MD, 'text/markdown;charset=utf-8');
+      if (kind === 'md') { if (!REPORT_MD) return; download('report.md', REPORT_MD, 'text/markdown;charset=utf-8'); }
       else if (kind === 'json') download('papers.enriched.json', enrichedJson(), 'application/json;charset=utf-8');
       else if (kind === 'bib') download('papers.bib', bibAll(), 'application/x-bibtex;charset=utf-8');
       else if (kind === 'ris') download('papers.ris', risAll(), 'application/x-research-info-systems;charset=utf-8');
       setMenu(false);
+    });
+    // No embedded report → no point offering a 0-byte report.md.
+    if (!REPORT_MD) { var mdItem = exportMenu.querySelector('[data-dl="md"]'); if (mdItem) mdItem.classList.add('hidden'); }
+    // Arrow-key navigation expected of role="menu".
+    exportMenu.addEventListener('keydown', function (e) {
+      var items = [].slice.call(exportMenu.querySelectorAll('.mitem:not(.hidden)'));
+      if (!items.length) return;
+      var i = items.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+      else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+      else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
     });
 
     // ---- bring-your-own-key: live, in-page deep dives -----------------------
@@ -702,10 +753,12 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     }
     var keyBtn = document.getElementById('keyBtn'), keyMenu = document.getElementById('keyMenu');
     var kProvider = document.getElementById('kProvider'), kModel = document.getElementById('kModel'),
-        kKey = document.getElementById('kKey'), kRemember = document.getElementById('kRemember'), kState = document.getElementById('kState');
+        kKey = document.getElementById('kKey'), kRemember = document.getElementById('kRemember'),
+        kState = document.getElementById('kState'), kSave = document.getElementById('kSave');
     function setKeyMenu(open) {
+      if (open) setMenu(false); // one dropdown at a time
       keyMenu.classList.toggle('open', open); keyBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) { syncKeyForm(); setTimeout(function () { (LLM.key ? kKey : kKey).focus(); }, 0); }
+      if (open) { syncKeyForm(); setTimeout(function () { (LLM.key ? kSave : kKey).focus(); }, 0); }
     }
     function syncKeyForm() {
       kProvider.value = LLM.provider; kModel.value = LLM.model; kRemember.checked = LLM.remember;
@@ -717,9 +770,12 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     });
     keyBtn.addEventListener('click', function (e) { e.stopPropagation(); setKeyMenu(!keyMenu.classList.contains('open')); });
     document.addEventListener('click', function (e) {
-      if (keyMenu.classList.contains('open') && !keyMenu.contains(e.target) && e.target !== keyBtn) setKeyMenu(false);
+      if (!keyMenu.classList.contains('open') || keyMenu.contains(e.target) || e.target === keyBtn) return;
+      // the same bubbled click that just opened the menu via "Go deeper" must not close it again
+      if (e.target.closest && e.target.closest('[data-act="deeper"]')) return;
+      setKeyMenu(false);
     });
-    document.getElementById('kSave').addEventListener('click', function () {
+    kSave.addEventListener('click', function () {
       LLM.provider = kProvider.value; LLM.model = (kModel.value || '').trim() || DEFAULT_MODEL[LLM.provider];
       LLM.key = (kKey.value || '').trim(); LLM.remember = kRemember.checked; persistKey(); syncKeyForm();
       if (LLM.key) setKeyMenu(false);
@@ -763,7 +819,17 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
         headers = { 'content-type': 'application/json', 'authorization': 'Bearer ' + LLM.key };
         body = { model: LLM.model, max_tokens: 1024, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: SYS }, { role: 'user', content: deepPrompt(p) }] };
       }
-      var res = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(body) });
+      // 60s cap so a hung request can't leave the card spinning forever (the loading
+      // guard in goDeeper would otherwise block retrying that paper until reload).
+      var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      var timer = ctrl && setTimeout(function () { ctrl.abort(); }, 60000);
+      var res;
+      try {
+        res = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(body), signal: ctrl && ctrl.signal });
+      } catch (err) {
+        if (ctrl && ctrl.signal.aborted) throw new Error('The provider did not respond within 60 seconds — try again.');
+        throw err;
+      } finally { if (timer) clearTimeout(timer); }
       if (!res.ok) { var t = ''; try { t = await res.text(); } catch (e) {} throw new Error('HTTP ' + res.status + (t ? ' · ' + t.slice(0, 160) : '')); }
       var j = await res.json();
       var text = LLM.provider === 'anthropic'
@@ -813,6 +879,11 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     document.getElementById('sort').addEventListener('change', function (e) { state.sort = e.target.value; rerender(); });
     chips('sourceChips', allSources(), state.sources);
     chips('clusterChips', allClusters(), state.clusters);
+    // The control deck wraps at narrow widths — measure it instead of hardcoding 58px
+    // so the reader pane height and scroll anchoring stay correct.
+    var deckEl = document.querySelector('.deck');
+    function syncDeckH() { document.documentElement.style.setProperty('--deck-h', deckEl.offsetHeight + 'px'); }
+    window.addEventListener('resize', syncDeckH); syncDeckH();
     document.getElementById('footer').innerHTML = 'Compiled by paper-boy · ' + esc(meta.generatedAt || '')
       + ' · ' + papers.length + ' papers · every link verifiable against its source';
     renderDashboard();
