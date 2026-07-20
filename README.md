@@ -30,7 +30,7 @@ than guessing. This is the entire value of the tool.
 ```bash
 git clone https://github.com/jimbo111/paper-boy.git
 cd paper-boy
-npm test   # optional: 96 tests, no network needed
+npm test   # optional: 112 tests, offline except one network smoke test
 ```
 
 To use it as a Claude Code slash command, place (or symlink) this directory at
