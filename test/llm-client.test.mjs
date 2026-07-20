@@ -55,6 +55,19 @@ test('maps 401 to an auth error and does not retry', async () => {
   assert.equal(calls, 1, 'auth errors are not re-prompted');
 });
 
+test('rate limiter spaces out concurrently-enqueued requests', async () => {
+  const starts = [];
+  const post = async () => {
+    starts.push(Date.now());
+    return { ok: true, status: 200, body: JSON.stringify({ text: '{"x":1}' }) };
+  };
+  // 3 requests at 5 rps → 200ms gaps; lenient bound to stay CI-safe.
+  const client = makeClient({ provider: echoProvider(), rps: 5, maxConcurrency: 4, postImpl: post });
+  await Promise.all([1, 2, 3].map(() => client.complete({ prompt: 'p', schema: { required: ['x'] } })));
+  assert.equal(starts.length, 3);
+  assert.ok(starts[2] - starts[0] >= 300, `expected ≥300ms spread, got ${starts[2] - starts[0]}ms`);
+});
+
 test('schema-less completion returns raw text', async () => {
   const client = makeClient({ provider: echoProvider(), rps: 0, postImpl: scriptedPost([{ text: 'plain text' }]) });
   const r = await client.complete({ prompt: 'p' });

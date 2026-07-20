@@ -36,7 +36,9 @@ function today() {
 async function main() {
   const { o, flags } = parseArgs(process.argv.slice(2));
   const inPath = o.in || 'papers.raw.json';
-  const outPath = o.out || inPath.replace(/raw\.json$/, 'enriched.json').replace(/\.json$/, '.enriched.json');
+  const outPath = o.out || (/raw\.json$/.test(inPath)
+    ? inPath.replace(/raw\.json$/, 'enriched.json')
+    : inPath.replace(/\.json$/, '') + '.enriched.json');
 
   let raw;
   try { raw = JSON.parse(readFileSync(inPath, 'utf8')); }

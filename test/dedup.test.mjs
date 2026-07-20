@@ -47,3 +47,9 @@ test('a bridge record unifies two already-separate entries', () => {
 test('keeps distinct papers separate', () => {
   assert.equal(dedupeMerge([mk({ doi: '10.1/a' }), mk({ doi: '10.1/b', title: 'Other' })]).length, 2);
 });
+
+test('does not merge distinct untitled papers on the empty-title key', () => {
+  const a = mk({ id: 's2:a', title: null, sources: ['s2'] });
+  const b = mk({ id: 's2:b', title: null, sources: ['openalex'] });
+  assert.equal(dedupeMerge([a, b]).length, 2);
+});

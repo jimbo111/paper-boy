@@ -62,6 +62,15 @@ test('parseAtom decodes HTML entities in title/abstract', () => {
   assert.equal(p.abstract, 'a & b');
 });
 
+test('parseAtom keeps old-style ids containing a "v" and strips the version', () => {
+  const xmlOld = '<feed><entry><id>http://arxiv.org/abs/solv-int/9711008v2</id>' +
+    '<published>1997-11-05T00:00:00Z</published>' +
+    '<title>T</title><summary>s</summary><author><name>X</name></author></entry></feed>';
+  const p = parseAtom(xmlOld)[0];
+  assert.equal(p.arxivId, 'solv-int/9711008');
+  assert.equal(p.links.arxiv, 'https://arxiv.org/abs/solv-int/9711008');
+});
+
 test('parseAtom handles empty input', () => {
   assert.deepEqual(parseAtom(''), []);
   assert.deepEqual(parseAtom(null), []);
