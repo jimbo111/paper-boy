@@ -23,6 +23,14 @@ test('embedded data is parseable and complete', () => {
   assert.ok(parsed.papers.every((p) => typeof p.ris === 'string'), 'ris precomputed for every paper');
 });
 
+test('reader ships the reading path and theme toggle', () => {
+  const html = renderHtml(data, tpl);
+  assert.ok(html.includes('"readingPath"'), 'reading path embedded in the data');
+  assert.ok(tpl.includes('DATA.readingPath'), 'template renders the reading path');
+  assert.ok(tpl.includes('id="themeBtn"'), 'day/night toggle present');
+  assert.ok(tpl.includes('data-theme="dark"'), 'dark theme variables defined');
+});
+
 test('reader offers an RIS / Zotero export action', () => {
   const html = renderHtml(data, tpl);
   assert.ok(html.includes('data-dl="ris"'), 'RIS download action present in the export menu');

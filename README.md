@@ -30,7 +30,7 @@ than guessing. This is the entire value of the tool.
 ```bash
 git clone https://github.com/jimbo111/paper-boy.git
 cd paper-boy
-npm test   # optional: 112 tests, offline except one network smoke test
+npm test   # optional: 117 tests, offline except one network smoke test
 ```
 
 To use it as a Claude Code slash command, place (or symlink) this directory at
@@ -49,10 +49,12 @@ fetch  →  enrich  →  render
    parallel, dedupes by DOI / arXiv id / normalized title, and writes
    `papers.raw.json`. Deterministic, no LLM.
 2. **enrich** (`bin/enrich.mjs`) — calls your chosen AI provider to add per-paper
-   summaries, relevance scores, thematic clusters, and full-text deep-dives, writing
-   `papers.enriched.json`.
+   summaries, relevance scores, thematic clusters, an ordered **reading path** for
+   newcomers to the topic, and full-text deep-dives, writing `papers.enriched.json`.
 3. **render** (`bin/render.mjs`) — turns the enriched JSON into a single
    `index.html` with fonts and data inlined. No external requests at view time.
+   The reader has day and night editions (follows your system theme; toggleable),
+   tracks read progress, and shows the reading path so you know where to start.
 
 ## Standalone usage
 

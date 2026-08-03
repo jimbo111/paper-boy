@@ -26,10 +26,36 @@ __PAPER_BOY_FONTS__
   --accent-d:#8c2a20;
   --accent-wash:#f0e1dc;  /* faint red field */
   --arxiv:#a23627; --s2:#2d6a6a; --openalex:#5b4c8c;
+  --cdot-1:#b23a2e; --cdot-2:#2d6a6a; --cdot-3:#5b4c8c; --cdot-4:#9a7a1f; --cdot-5:#3a352e; --cdot-6:#7a4a2a;
+  --deck-bg:rgba(244,239,227,.93);
+  --grain-a:rgba(120,100,60,.035);
+  --grain-b:rgba(120,100,60,.03);
   --serif:'Newsreader','Iowan Old Style',Georgia,'Times New Roman',serif;
   --sans:ui-sans-serif,system-ui,-apple-system,'Helvetica Neue','Segoe UI',Arial,sans-serif;
   --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
   --pad:clamp(18px,4vw,52px);
+  color-scheme:light;
+}
+/* Night edition — same broadsheet, aged-dark stock. All AA-checked against --paper. */
+:root[data-theme="dark"] {
+  --paper:#1e1a13;        /* warm dark stock */
+  --paper-2:#171410;      /* recessed well */
+  --surface:#282318;      /* raised stock */
+  --ink:#ece5d3;
+  --ink-2:#cfc5ad;
+  --muted:#aaa08a;
+  --faint:#a79d87;
+  --rule:#3a342a;
+  --rule-2:#544b38;
+  --accent:#e0705a;       /* brick red, lifted for dark */
+  --accent-d:#e88f76;
+  --accent-wash:#3a2721;
+  --arxiv:#e39074; --s2:#79c2c2; --openalex:#af9fe0;
+  --cdot-1:#e0705a; --cdot-2:#79c2c2; --cdot-3:#af9fe0; --cdot-4:#cfa93c; --cdot-5:#b7ac95; --cdot-6:#c98a5f;
+  --deck-bg:rgba(30,26,19,.93);
+  --grain-a:rgba(220,195,140,.028);
+  --grain-b:rgba(220,195,140,.022);
+  color-scheme:dark;
 }
 * { box-sizing:border-box; }
 html,body { margin:0; height:100%; }
@@ -39,8 +65,8 @@ body {
   text-rendering:optimizeLegibility;
   /* faint paper grain so it doesn't read as a flat AI surface */
   background-image:
-    radial-gradient(circle at 12% 18%, rgba(120,100,60,.035), transparent 60%),
-    radial-gradient(circle at 88% 82%, rgba(120,100,60,.03), transparent 55%);
+    radial-gradient(circle at 12% 18%, var(--grain-a), transparent 60%),
+    radial-gradient(circle at 88% 82%, var(--grain-b), transparent 55%);
   background-attachment:fixed;
 }
 a { color:var(--accent-d); text-decoration:none; }
@@ -70,7 +96,7 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 .folio .sep { color:var(--rule-2); margin:0 8px; }
 
 /* ---- sticky control deck ---------------------------------------------- */
-.deck { position:sticky; top:0; z-index:30; background:rgba(244,239,227,.93);
+.deck { position:sticky; top:0; z-index:30; background:var(--deck-bg);
   backdrop-filter:saturate(1.2) blur(8px); border-bottom:1px solid var(--rule-2);
   margin-top:14px; padding:10px var(--pad); display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
 .search { flex:1 1 220px; min-width:160px; font-family:var(--serif); font-size:1rem;
@@ -85,6 +111,15 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
   font-weight:700; padding:8px 14px; color:var(--ink); }
 .seg button + button { border-left:1px solid var(--ink); }
 .seg button.on { background:var(--ink); color:var(--paper); }
+
+/* day / night edition toggle */
+.theme-btn { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px;
+  border:1px solid var(--rule-2); background:var(--surface); color:var(--ink-2); flex:none; }
+.theme-btn:hover { border-color:var(--ink); color:var(--ink); }
+.theme-btn svg { width:15px; height:15px; }
+.theme-btn .i-sun { display:none; }
+:root[data-theme="dark"] .theme-btn .i-moon { display:none; }
+:root[data-theme="dark"] .theme-btn .i-sun { display:block; }
 
 /* export */
 .export-wrap { position:relative; }
@@ -150,6 +185,21 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 .pick-hl { font-family:var(--serif); font-weight:600; font-size:1.04rem; line-height:1.18; display:block; margin:3px 0 4px; }
 .pick-blurb { font-family:var(--sans); font-size:.78rem; color:var(--muted); line-height:1.4;
   display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; }
+
+/* ---- reading path (the newcomer's on-ramp) ----------------------------- */
+.path { border:1px solid var(--rule-2); border-top:3px solid var(--ink); background:var(--surface);
+  padding:14px clamp(16px,2.4vw,26px) 4px; margin-bottom:28px; }
+.path .pk { display:block; margin-bottom:2px; }
+.path-note { font-family:var(--sans); font-size:.78rem; color:var(--muted); margin:0 0 6px; }
+.path-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:0 clamp(18px,2.4vw,34px);
+  list-style:none; margin:0; padding:0; }
+.step { display:flex; gap:11px; text-align:left; width:100%; padding:12px 0 14px; border-top:1px solid var(--rule); align-items:baseline; }
+.lead-aside .path-steps { display:block; }
+.lead-aside .path-steps li:first-child .step { border-top:0; padding-top:4px; }
+.step-no { font-family:var(--mono); font-size:.82rem; font-weight:700; color:var(--accent); flex:none; }
+.step-hl { display:block; font-family:var(--serif); font-weight:600; font-size:1.04rem; line-height:1.2; margin-bottom:4px; }
+.step:hover .step-hl { color:var(--accent-d); text-decoration:underline; text-underline-offset:2px; }
+.step-why { display:block; font-family:var(--sans); font-size:.78rem; color:var(--muted); line-height:1.45; }
 
 /* sections (desks) */
 .section { margin-bottom:30px; }
@@ -219,10 +269,12 @@ button { font:inherit; color:inherit; cursor:pointer; background:none; border:0;
 .btn { display:inline-flex; align-items:center; gap:7px; font-family:var(--sans); font-size:.74rem;
   text-transform:uppercase; letter-spacing:.08em; font-weight:700; padding:8px 15px;
   border:1px solid var(--ink); color:var(--ink); background:var(--surface); }
-.btn:hover { background:var(--ink); color:var(--paper); }
+.btn:hover:not(:disabled) { background:var(--ink); color:var(--paper); }
 .btn.primary { background:var(--accent); color:var(--paper); border-color:var(--accent); }
 .btn.primary:hover { background:var(--accent-d); }
 .btn.on { background:var(--ink); color:var(--paper); }
+.btn:disabled { opacity:.45; cursor:default; }
+.actions .navpair { display:inline-flex; gap:9px; margin-left:auto; }
 .hint { font-family:var(--sans); color:var(--faint); font-size:.72rem; margin-top:14px; letter-spacing:.02em; }
 
 footer { font-family:var(--sans); text-align:center; color:var(--faint); font-size:.7rem;
@@ -285,8 +337,23 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
   .entry-blurb, .pick-blurb { display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; }
   body { background:#fff; }
   a { color:inherit; }
+  /* print is always the day edition, whatever the screen theme */
+  :root[data-theme="dark"] { --paper:#fff; --paper-2:#fff; --surface:#fff; --ink:#1d1a15; --ink-2:#403a30;
+    --muted:#6a6253; --faint:#6f6656; --rule:#d8cdb8; --rule-2:#c3b69c; --accent:#b23a2e; --accent-d:#8c2a20;
+    --arxiv:#a23627; --s2:#2d6a6a; --openalex:#5b4c8c;
+    --cdot-1:#b23a2e; --cdot-2:#2d6a6a; --cdot-3:#5b4c8c; --cdot-4:#9a7a1f; --cdot-5:#3a352e; --cdot-6:#7a4a2a; }
 }
 </style>
+<script>
+// Apply the saved (or system) theme before first paint so there is no flash.
+(function () {
+  try {
+    var t = localStorage.getItem('pb_theme');
+    if (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  } catch (e) {}
+})();
+</script>
 </head>
 <body>
   <header class="masthead">
@@ -312,6 +379,10 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       <button id="viewDash" class="on" aria-pressed="true" onclick="setView('dashboard')">Front&nbsp;Page</button>
       <button id="viewRead" aria-pressed="false" onclick="setView('reader')">Reader</button>
     </div>
+    <button class="theme-btn" id="themeBtn" aria-pressed="false" aria-label="Night edition" title="Night edition">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12.4 3a9 9 0 1 0 8.6 11.6A7.6 7.6 0 0 1 12.4 3z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.4" fill="currentColor" stroke="none"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/></svg>
+    </button>
     <div class="key-wrap">
       <button class="export-btn" id="keyBtn" aria-haspopup="dialog" aria-expanded="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.65 10A6 6 0 1 0 11 13.65L15 18h3v-3h2v-3h-7.35zM7 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>AI key
@@ -378,7 +449,8 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     var slug = (DATA.meta && DATA.meta.slug) || 'topic';
     var READKEY = 'paperboy:read:' + slug;
     var read = new Set(JSON.parse(localStorage.getItem(READKEY) || '[]'));
-    var CDOT = ['#b23a2e', '#2d6a6a', '#5b4c8c', '#9a7a1f', '#3a352e', '#7a4a2a'];
+    // Cluster dot colors live in CSS vars so the night edition can restate them.
+    var CDOT = ['var(--cdot-1)', 'var(--cdot-2)', 'var(--cdot-3)', 'var(--cdot-4)', 'var(--cdot-5)', 'var(--cdot-6)'];
     var firstPaint = true;
     var lastDetailId = null; // which paper the detail pane last showed — gates the scroll reset
 
@@ -454,7 +526,24 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       html += '<h2 class="edition"><span class="the">Research briefing</span>' + esc(topic) + '</h2>';
       if (DATA.trending) html += '<p class="standfirst">' + esc(DATA.trending) + '</p>';
 
-      // lead story + editor's picks
+      // reading path — an ordered on-ramp for someone new to the topic. When a lead
+      // story renders, the path takes over the aside (instead of "Also notable") so
+      // the same titles aren't stacked twice on one front page.
+      var path = (DATA.readingPath || []).map(function (s) { return { p: byId[s.id], why: s.why }; })
+        .filter(function (s) { return s.p && visIds.has(s.p.id); });
+      function pathSteps() {
+        var s = '<p class="path-note">New to this topic? Read these in order.</p><ol class="path-steps">';
+        path.forEach(function (st, i) {
+          s += '<li><button type="button" class="step" data-act="open" data-id="' + esc(st.p.id) + '">'
+            + '<span class="step-no" aria-hidden="true">' + (i + 1) + '</span><span>'
+            + '<span class="step-hl">' + esc(st.p.title) + '</span>'
+            + '<span class="step-why">' + esc(st.why || '') + '</span>'
+            + '</span></button></li>';
+        });
+        return s + '</ol>';
+      }
+
+      // lead story + aside (reading path, or editor's picks when there is no path)
       var starts = (DATA.startHere || []).map(function (id) { return byId[id]; }).filter(function (p) { return p && visIds.has(p.id); });
       if (starts.length) {
         var lead = starts[0];
@@ -465,20 +554,27 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
           + '<p class="lead-deck">' + esc(lead.summary || lead.whatsNew || lead.tldr || '') + '</p>'
           + '<div class="meta lead-meta">' + metaRow(lead) + '</div>'
           + '</div>';
-        var picks = starts.slice(1, 4);
-        html += '<div class="lead-aside"><span class="kick ak">Also notable</span>';
-        if (picks.length) {
-          picks.forEach(function (p, i) {
-            html += '<button type="button" class="pick" data-act="open" data-id="' + esc(p.id) + '">'
-              + '<span class="pick-no">' + (i + 2) + '.</span> '
-              + '<span class="pick-hl">' + esc(p.title) + '</span>'
-              + '<span class="pick-blurb">' + esc(p.whatsNew || p.tldr || p.summary || '') + '</span>'
-              + '</button>';
-          });
+        html += '<div class="lead-aside">';
+        if (path.length) {
+          html += '<span class="kick ak">Reading path</span>' + pathSteps();
         } else {
-          html += '<p class="pick-blurb">One standout this run.</p>';
+          var picks = starts.slice(1, 4);
+          html += '<span class="kick ak">Also notable</span>';
+          if (picks.length) {
+            picks.forEach(function (p, i) {
+              html += '<button type="button" class="pick" data-act="open" data-id="' + esc(p.id) + '">'
+                + '<span class="pick-no">' + (i + 2) + '.</span> '
+                + '<span class="pick-hl">' + esc(p.title) + '</span>'
+                + '<span class="pick-blurb">' + esc(p.whatsNew || p.tldr || p.summary || '') + '</span>'
+                + '</button>';
+            });
+          } else {
+            html += '<p class="pick-blurb">One standout this run.</p>';
+          }
         }
         html += '</div></div>';
+      } else if (path.length) {
+        html += '<section class="path"><span class="kick pk">Reading path</span>' + pathSteps() + '</section>';
       }
 
       // sections (desks)
@@ -504,7 +600,8 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
           + '<span class="dot" style="background:var(--rule-2)"></span><h2>More results</h2><span class="ct">(' + orphans.length + ')</span></div>'
           + '<div class="feed">' + orphans.map(entry).join('') + '</div></section>';
       }
-      if (!vis.length) html += '<p class="empty-note">No papers match the current filters. Try clearing the Sources / Topics filters or the search.</p>';
+      if (!vis.length) html += '<p class="empty-note">No papers match the current filters.'
+        + (anyFilter() ? ' <button type="button" class="btn" data-act="clearfilters">Clear filters</button>' : '') + '</p>';
       d.innerHTML = html;
       d.classList.toggle('intro', firstPaint);
       firstPaint = false;
@@ -520,7 +617,8 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
           + 'data-id="' + esc(p.id) + '" data-act="select" ' + (state.selected === p.id ? 'aria-current="true"' : '') + '>'
           + '<span class="ritem-hl">' + esc(p.title) + '</span>'
           + '<span class="meta">' + metaRow(p) + '</span></button>';
-      }).join('') || '<p class="hint" style="padding:16px">No papers match the current filters.</p>';
+      }).join('') || '<p class="hint" style="padding:16px">No papers match the current filters.'
+        + (anyFilter() ? ' <button type="button" class="btn" data-act="clearfilters">Clear filters</button>' : '') + '</p>';
       renderDetail();
     }
     function renderDetail() {
@@ -560,7 +658,14 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       h += '<button type="button" class="btn" data-act="bib" data-id="' + esc(p.id) + '" id="bibBtn">Copy BibTeX</button>';
       h += '<button type="button" class="btn ' + (read.has(p.id) ? 'on' : '') + '" data-act="read" data-id="' + esc(p.id) + '" id="readBtn">' + (read.has(p.id) ? '✓ Read' : 'Mark read') + '</button>';
       h += '<button type="button" class="btn" data-act="deeper" data-id="' + esc(p.id) + '">✨ Go deeper</button>';
-      h += '</div><div class="hint">j / k or ↑ / ↓ to navigate · ⏎ opens the paper · click any source tag to verify</div>';
+      var vis = visible();
+      var vi = vis.findIndex(function (x) { return x.id === p.id; });
+      h += '<span class="navpair">'
+        + '<button type="button" class="btn" data-act="prev"' + (vi <= 0 ? ' disabled' : '') + ' aria-label="Previous paper">← Prev</button>'
+        + '<button type="button" class="btn" data-act="next"' + (vi < 0 || vi >= vis.length - 1 ? ' disabled' : '') + ' aria-label="Next paper">Next →</button>'
+        + '</span>';
+      h += '</div><div class="hint">j / k or ↑ / ↓ to navigate · ⏎ opens the paper · click any source tag to verify · '
+        + readCount() + ' of ' + papers.length + ' read</div>';
       h += '<div class="deep-zone" id="deepZone">' + deepHtml(p.id) + '</div>';
       el.innerHTML = h;
       // jump to top only when the selection changed — re-renders of the same paper
@@ -624,9 +729,14 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     window.openPaper = function (id) { state.selected = id; setView('reader'); };
     window.selectPaper = function (id) { state.selected = id; renderReader(); };
     window.toggleCluster = function (name) { if (state.collapsed.has(name)) state.collapsed.delete(name); else state.collapsed.add(name); renderDashboard(); };
+    // Count only ids that exist in this run — the read set is per-slug and may
+    // carry ids from an older run of the same topic.
+    function readCount() { var n = 0; papers.forEach(function (p) { if (read.has(p.id)) n++; }); return n; }
+    function syncProgress() { var el = document.getElementById('readCount'); if (el) el.textContent = readCount(); }
     window.toggleRead = function (id) {
       if (read.has(id)) read.delete(id); else read.add(id);
       try { localStorage.setItem(READKEY, JSON.stringify([...read])); } catch (e) {} // storage may be unavailable (private mode) — the toggle still works for this session
+      syncProgress();
       if (state.view === 'reader') renderReader(); else renderDashboard();
     };
     window.copyBib = function (id) {
@@ -693,6 +803,15 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       else if (act === 'bib') { window.copyBib(id); }
       else if (act === 'read') { window.toggleRead(id); }
       else if (act === 'deeper') { window.goDeeper(id); }
+      else if (act === 'prev' || act === 'next') {
+        moveSel(act === 'prev' ? -1 : 1);
+        // renderDetail replaced the buttons — restore keyboard focus so paging
+        // with Enter/Space doesn't dump focus on <body>.
+        var same = document.querySelector('[data-act="' + act + '"]');
+        var other = document.querySelector('[data-act="' + (act === 'prev' ? 'next' : 'prev') + '"]');
+        if (same && !same.disabled) same.focus(); else if (other && !other.disabled) other.focus();
+      }
+      else if (act === 'clearfilters') { clearFilters(); }
     });
 
     // ---- export menu ----
@@ -863,6 +982,13 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       });
     }
     function rerender() { if (state.view === 'reader') renderReader(); else renderDashboard(); }
+    function anyFilter() { return !!(state.search || state.sources.size || state.clusters.size); }
+    function clearFilters() {
+      state.search = ''; document.getElementById('search').value = '';
+      state.sources.clear(); state.clusters.clear();
+      document.querySelectorAll('.chip[aria-pressed="true"]').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
+      rerender();
+    }
 
     // ---- init ----
     var meta = DATA.meta || {};
@@ -872,6 +998,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     document.getElementById('folio').innerHTML =
       '<b>' + papers.length + '</b> papers'
       + '<span class="sep">/</span><b>' + ((DATA.clusters || []).length) + '</b> topics'
+      + '<span class="sep">/</span><b id="readCount">' + readCount() + '</b> read'
       + '<span class="sep">/</span>since <b>' + esc(meta.since || 'n/a') + '</b>'
       + '<span class="sep">/</span>arXiv <b>' + (src.arxiv || 0) + '</b> · S2 <b>' + (src.s2 || 0) + '</b> · OpenAlex <b>' + (src.openalex || 0) + '</b>';
     document.title = 'paper-boy — ' + (meta.topic || 'research');
@@ -884,6 +1011,23 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     var deckEl = document.querySelector('.deck');
     function syncDeckH() { document.documentElement.style.setProperty('--deck-h', deckEl.offsetHeight + 'px'); }
     window.addEventListener('resize', syncDeckH); syncDeckH();
+    // Day / night edition toggle. The pre-paint script in <head> applied the initial
+    // theme; this just flips it and remembers the explicit choice.
+    var themeBtn = document.getElementById('themeBtn');
+    // Fixed accessible name + aria-pressed state (APG toggle-button pattern).
+    function syncTheme() {
+      var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      themeBtn.title = dark ? 'Night edition — on' : 'Night edition';
+    }
+    themeBtn.addEventListener('click', function () {
+      var el = document.documentElement;
+      var toDark = el.getAttribute('data-theme') !== 'dark';
+      if (toDark) el.setAttribute('data-theme', 'dark'); else el.removeAttribute('data-theme');
+      try { localStorage.setItem('pb_theme', toDark ? 'dark' : 'light'); } catch (e) {}
+      syncTheme();
+    });
+    syncTheme();
     document.getElementById('footer').innerHTML = 'Compiled by paper-boy · ' + esc(meta.generatedAt || '')
       + ' · ' + papers.length + ' papers · every link verifiable against its source';
     renderDashboard();
