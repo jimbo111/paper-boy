@@ -19,8 +19,11 @@ test('enrich.mjs (fake LLM) emits enriched JSON that render.mjs consumes', () =>
 
   assert.ok(existsSync(`${dir}/papers.enriched.json`), 'enriched JSON written');
   const e = JSON.parse(readFileSync(`${dir}/papers.enriched.json`, 'utf8'));
-  assert.deepEqual(Object.keys(e).sort(), ['clusters', 'meta', 'papers', 'startHere', 'trending'].sort());
+  assert.deepEqual(Object.keys(e).sort(), ['clusters', 'meta', 'papers', 'readingPath', 'startHere', 'trending'].sort());
   assert.ok(e.papers.length > 0 && e.clusters.length > 0);
+  const ids = new Set(e.papers.map((p) => p.id));
+  assert.ok(e.readingPath.length > 0 && e.readingPath.every((s) => ids.has(s.id) && s.why),
+    'reading path points at real papers with a why line');
   assert.ok(e.papers.every((p) => typeof p.relevance === 'number' && 'deepDive' in p));
 
   // render.mjs accepts it and writes a self-contained reader.

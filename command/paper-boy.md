@@ -55,6 +55,7 @@ For every paper in `papers.raw.json`, produce an enriched record. Then rank, clu
   "trending": "1-3 sentences on what's heating up across these papers",
   "clusters": [ { "name": "Short Topic Name", "synthesis": "one-line takeaway", "paperIds": ["id", "..."] } ],
   "startHere": ["id", "id", "id"],
+  "readingPath": [ { "id": "id", "why": "one line: why read it at this point" } ],
   "papers": [
     {
       "...all original fields from the raw paper (id, title, authors, abstract, tldr, publishedDate, year, venue, citationCount, influentialCitationCount, fields, sources, arxivId, doi, links)...": "unchanged",
@@ -80,6 +81,7 @@ Rules:
 - `mustRead`: flag the top 3–5 by score.
 - `clusters`: 3–6 named groups; give each a one-line `synthesis`; every kept paper goes in ≥1 cluster's `paperIds`.
 - `startHere`: the must-read ids, best first.
+- `readingPath`: order 3–5 kept papers (usually the must-reads) from most accessible/foundational to most specialized — an on-ramp for someone new to the topic. Each `why` is one line on why to read it at that point, grounded in that paper's real abstract. Ids must come from kept papers only.
 - Set `meta.generatedAt` to today; carry `meta.sources`/`since`/`slug`/`topic` from raw; set `meta.total` to the number of kept papers.
 
 ### Step 4 — Deep-dive the top `--deep` must-reads

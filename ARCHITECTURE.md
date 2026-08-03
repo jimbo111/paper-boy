@@ -45,7 +45,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
   - `client.mjs` — sends requests through `postRaw`, applies a token-bucket rate limiter, and re-prompts on malformed JSON. Returns `{ok,data,error}`; never throws.
   - `fake.mjs` — deterministic offline client used when `PAPER_BOY_FAKE_LLM=1`.
 - `lib/enrich/prompts.mjs` — prompt text + JSON schemas + the anti-fabrication guardrail.
-- `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, tiered full-text deep-dives, and trending synthesis.
+- `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis.
 - `lib/fulltext/extract.mjs` — the dependency-free full-text ladder (ar5iv → arXiv HTML → abstract) and HTML-to-text stripper.
 - `lib/sources/openalex.mjs` — also exposes `fetchRelated`, the optional citation-graph expander that attaches each must-read's most-cited references (`--related N`, off by default).
 
@@ -64,8 +64,11 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 tldr, publishedDate, year, venue, citationCount, influentialCitationCount, fields,
 sources, arxivId, doi, links`.
 
-**`papers.enriched.json`** — `{ meta, trending, clusters[], startHere[], papers[] }`.
-Clusters are `{ name, synthesis, paperIds[] }`. Each paper carries every raw field
+**`papers.enriched.json`** — `{ meta, trending, clusters[], startHere[], readingPath[], papers[] }`.
+Clusters are `{ name, synthesis, paperIds[] }`. `readingPath` is an ordered
+`{ id, why }[]` on-ramp (3–5 steps, foundational → specialized); ids must reference kept
+papers — anything else is dropped, and a failed pass degrades to an empty path.
+Each paper carries every raw field
 unchanged plus `whatsNew, whyItMatters, summary, clusters[], relevance, score, mustRead,
 deepDive`. `deepDive` is `null` or `{ findings[], method, limitations[], fullText }`
 where `fullText ∈ {read, abstract, unavailable}`.

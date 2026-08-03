@@ -18,6 +18,24 @@ test('every paper title appears', () => {
   for (const p of data.papers) assert.ok(md.includes(p.title), `missing: ${p.title}`);
 });
 
+test('reading path renders in order and skips unknown ids', () => {
+  const md = renderMarkdown(data);
+  assert.match(md, /## Reading path/);
+  assert.match(md, /1\. \*\*\[Efficient LoRA Fine-Tuning for Multimodal Models\]/);
+  const withBad = JSON.parse(JSON.stringify(data));
+  withBad.readingPath = [{ id: 'arxiv:NOT-REAL', why: 'x' }];
+  const bad = renderMarkdown(withBad);
+  const section = bad.slice(bad.indexOf('## Reading path'));
+  const body = section.slice(0, section.indexOf('\n## '));
+  assert.ok(!/^\d+\. /m.test(body), 'an unknown id produces no numbered step');
+});
+
+test('no reading path → no section', () => {
+  const noPath = JSON.parse(JSON.stringify(data));
+  delete noPath.readingPath;
+  assert.doesNotMatch(renderMarkdown(noPath), /## Reading path/);
+});
+
 test('must-reads are starred and deep-dive findings render', () => {
   const md = renderMarkdown(data);
   assert.match(md, /⭐/);

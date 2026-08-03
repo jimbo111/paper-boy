@@ -13,3 +13,4 @@ config.json
 # local working notes and review scratch — not part of the public repo
 CLAUDE.md
 .ui-design/
+tasks/

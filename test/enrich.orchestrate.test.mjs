@@ -9,7 +9,7 @@ const raw = JSON.parse(readFileSync(`${ROOT}/fixtures/papers.raw.sample.json`, '
 
 // A mock client routing on schema.required. `opts` can force per-paper failures or
 // inject a bogus cluster id to prove it gets dropped.
-function mockClient({ failTitles = new Set(), injectBadId = false } = {}) {
+function mockClient({ failTitles = new Set(), injectBadId = false, injectBadPathId = false } = {}) {
   let paperCalls = 0;
   return {
     model: 'mock',
@@ -28,6 +28,12 @@ function mockClient({ failTitles = new Set(), injectBadId = false } = {}) {
         return { ok: true, data: { clusters: [{ name: 'Theme', synthesis: 's', paperIds }] } };
       }
       if (req.includes('findings')) return { ok: true, data: { findings: ['f1'], method: 'm', limitations: ['l1'] } };
+      if (req.includes('readingPath')) {
+        const ids = [...prompt.matchAll(/^- (\S+):/gm)].map((m) => m[1]);
+        const steps = ids.slice(0, 3).map((id) => ({ id, why: 'read this here' }));
+        if (injectBadPathId) steps.push({ id: 'arxiv:NOT-REAL', why: 'invented' }, { id: ids[0], why: 'duplicate' });
+        return { ok: true, data: { readingPath: steps } };
+      }
       if (req.includes('trending')) return { ok: true, data: { trending: 'rising' } };
       return { ok: false, error: 'unexpected schema' };
     },
@@ -39,7 +45,7 @@ const fakeFullText = async (p) => ({ text: 'full text body', source: p.arxivId ?
 
 test('produces the enriched schema shape', async () => {
   const out = await enrichAll({ raw, client: mockClient(), fetchFullText: fakeFullText, today: '2026-06-08', deep: 2 });
-  assert.deepEqual(Object.keys(out).sort(), ['clusters', 'meta', 'papers', 'startHere', 'trending'].sort());
+  assert.deepEqual(Object.keys(out).sort(), ['clusters', 'meta', 'papers', 'readingPath', 'startHere', 'trending'].sort());
   assert.equal(out.meta.generatedAt, '2026-06-08');
   assert.equal(out.trending, 'rising');
   const p = out.papers[0];
@@ -63,6 +69,29 @@ test('cluster paperIds referencing unknown papers are dropped', async () => {
   for (const c of out.clusters) for (const id of c.paperIds) {
     assert.ok(ids.has(id), `cluster id ${id} references a real paper`);
   }
+});
+
+test('reading path keeps only real, unique ids with a why line', async () => {
+  const out = await enrichAll({ raw, client: mockClient({ injectBadPathId: true }), fetchFullText: fakeFullText, today: '2026-06-08' });
+  const ids = new Set(out.papers.map((p) => p.id));
+  assert.ok(out.readingPath.length > 0, 'reading path produced');
+  assert.ok(out.readingPath.length <= 5, 'capped at 5 steps');
+  const seen = new Set();
+  for (const s of out.readingPath) {
+    assert.ok(ids.has(s.id), `path id ${s.id} references a real paper`);
+    assert.ok(!seen.has(s.id), `path id ${s.id} appears once`);
+    seen.add(s.id);
+    assert.equal(typeof s.why, 'string');
+  }
+});
+
+test('a failed reading-path pass degrades to an empty path', async () => {
+  const client = mockClient();
+  const inner = client.complete.bind(client);
+  client.complete = async (args) =>
+    args.schema && args.schema.required.includes('readingPath') ? { ok: false, error: 'boom' } : inner(args);
+  const out = await enrichAll({ raw, client, fetchFullText: fakeFullText, today: '2026-06-08' });
+  assert.deepEqual(out.readingPath, []);
 });
 
 test('a per-paper failure does not abort and keeps raw fields', async () => {
@@ -104,7 +133,7 @@ test('abstract-only deep-dive is flagged and not fabricated', async () => {
 // Structured-output endpoints (Anthropic json_schema) reject object schemas that
 // omit additionalProperties:false — assert every object in every schema has it.
 test('all prompt schemas mark every object additionalProperties:false', async () => {
-  const { PAPER_SCHEMA, CLUSTER_SCHEMA, DEEPDIVE_SCHEMA, TRENDING_SCHEMA } =
+  const { PAPER_SCHEMA, CLUSTER_SCHEMA, DEEPDIVE_SCHEMA, TRENDING_SCHEMA, READING_PATH_SCHEMA } =
     await import('../lib/enrich/prompts.mjs');
   const check = (node, path) => {
     if (!node || typeof node !== 'object') return;
@@ -113,7 +142,7 @@ test('all prompt schemas mark every object additionalProperties:false', async ()
     }
     for (const [k, v] of Object.entries(node)) check(v, `${path}.${k}`);
   };
-  for (const [name, s] of Object.entries({ PAPER_SCHEMA, CLUSTER_SCHEMA, DEEPDIVE_SCHEMA, TRENDING_SCHEMA })) {
+  for (const [name, s] of Object.entries({ PAPER_SCHEMA, CLUSTER_SCHEMA, DEEPDIVE_SCHEMA, TRENDING_SCHEMA, READING_PATH_SCHEMA })) {
     check(s, name);
   }
 });
