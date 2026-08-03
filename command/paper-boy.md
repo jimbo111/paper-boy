@@ -106,6 +106,7 @@ This writes a single self-contained `$RUN/index.html` and opens it. The Markdown
 Tell the user, concisely:
 - Source counts (arXiv / S2 / OpenAlex) and how many papers were kept.
 - The "Start here" titles, each with its one-line `whatsNew`.
+- The reading path, in order, so someone new to the topic knows where to begin.
 - The output path (`$RUN`) and that the HTML reader opened in their browser — note they can download the Markdown / JSON / BibTeX from the reader's **Export** menu.
 
 ## Notes

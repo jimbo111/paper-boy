@@ -53,8 +53,7 @@ fetch  →  enrich  →  render
    newcomers to the topic, and full-text deep-dives, writing `papers.enriched.json`.
 3. **render** (`bin/render.mjs`) — turns the enriched JSON into a single
    `index.html` with fonts and data inlined. No external requests at view time.
-   The reader has day and night editions (follows your system theme; toggleable),
-   tracks read progress, and shows the reading path so you know where to start.
+   See [Using the reader](#using-the-reader).
 
 ## Standalone usage
 
@@ -150,6 +149,29 @@ node bin/enrich.mjs --in run/papers.raw.json --related 5
 Each must-read then carries a `related[]` list (title, authors, year, citations, link),
 shown in the reader under the paper and never fabricated — an unreachable reference list
 simply yields an empty result.
+
+## Using the reader
+
+`index.html` opens in any browser, offline, with no install. It is laid out as a briefing
+rather than a search-results page, so you can enter a field you don't know yet:
+
+- **Reading path** — a short ordered on-ramp (up to five papers), foundational first, each
+  with one line on why to read it at that point. Start here if the topic is new to you.
+  It sits on the Front Page, not a separate view.
+- **Front Page** — the highest-scoring paper as the lead story, then papers grouped into
+  named themes, each with a one-line synthesis of what the group collectively shows.
+- **Reader** — a two-pane view: paper list on the left, the full write-up on the right
+  (TL;DR, summary, what's new, why it matters, abstract, related work, and — where a
+  full-text deep-dive succeeded — its findings, method, and limitations).
+- **Search and filter** — free-text search plus source and topic filters; `/` focuses the
+  search box from anywhere.
+- **Keyboard** — in Reader view, `j` / `k` (or `↑` / `↓`) move through papers and `⏎` opens
+  the current one at its source. **Prev** / **Next** buttons step through them by mouse or
+  touch.
+- **Read tracking** — mark papers read; progress is kept per topic in your browser, so
+  you can pick a long run back up later.
+- **Day and night editions** — defaults to your system theme, toggleable, and remembers
+  your choice from then on. Printing always uses the day edition.
 
 ## Exports
 

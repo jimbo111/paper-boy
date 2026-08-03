@@ -40,6 +40,19 @@ There is nothing to install — paper-boy runs on the Node ≥ 18 standard libra
 3. If it uses a conventional key env var, add it to `KEY_ENV` in `lib/config.mjs`.
 4. Add a test mirroring `test/llm-openai-compat.test.mjs`.
 
+## How to add an enrichment pass
+
+1. Add the prompt builder and its JSON schema to `lib/enrich/prompts.mjs`, ending the
+   prompt with the shared `GUARDRAIL`. Every object in the schema needs
+   `additionalProperties: false` — structured-output endpoints reject it otherwise.
+2. Call it from `lib/enrich/orchestrate.mjs` and **validate the result against real data**:
+   discard ids the model invented, and degrade to a safe empty value when the pass fails.
+   A pass must never abort the run or introduce something the sources didn't return.
+3. Teach `lib/llm/fake.mjs` to answer the new schema so the offline path stays end-to-end.
+4. Surface it in `lib/markdown.mjs` and `template/reader.html`, and extend the JSON
+   contract in `ARCHITECTURE.md` plus the session workflow in `command/paper-boy.md`.
+5. Add tests for the happy path, an invented-id case, and a failed-pass case.
+
 ## How to add a data source
 
 1. Add `lib/sources/<name>.mjs` with a pure URL/query builder, a pure parser that returns

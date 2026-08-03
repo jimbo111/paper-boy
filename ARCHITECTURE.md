@@ -56,7 +56,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 - `lib/html.mjs` — token replacement and `</script>`-safe data embedding.
 - `lib/bibtex.mjs` — per-paper BibTeX generation.
 - `lib/ris.mjs` — per-paper RIS generation (Zotero / Mendeley / EndNote import).
-- `template/reader.html` — the reader UI (vanilla JS, inline CSS); `template/fonts/` holds the inlined typeface. Also hosts the optional **bring-your-own-key** panel: a reader can paste an Anthropic or OpenAI key and trigger a live, abstract-based "Go deeper" analysis per paper, called directly from the browser. The key stays client-side (session-only or localStorage) and is never serialized into any export.
+- `template/reader.html` — the reader UI (vanilla JS, inline CSS); `template/fonts/` holds the inlined typeface. Two views (Front Page / Reader) over one filtered-and-sorted paper list, plus the reading path, search + source/topic filters, keyboard navigation, and read tracking (`localStorage`, keyed per topic slug). Theming is a `data-theme="dark"` attribute on `<html>` that restates the CSS custom properties; a pre-paint inline script applies the stored or system preference so there is no flash, and `@media print` always restores the day palette. Also hosts the optional **bring-your-own-key** panel: a reader can paste an Anthropic or OpenAI key and trigger a live, abstract-based "Go deeper" analysis per paper, called directly from the browser. The key stays client-side (session-only or localStorage) and is never serialized into any export.
 
 ## JSON contracts
 
@@ -67,10 +67,9 @@ sources, arxivId, doi, links`.
 **`papers.enriched.json`** — `{ meta, trending, clusters[], startHere[], readingPath[], papers[] }`.
 Clusters are `{ name, synthesis, paperIds[] }`. `readingPath` is an ordered
 `{ id, why }[]` on-ramp (3–5 steps, foundational → specialized); ids must reference kept
-papers — anything else is dropped, and a failed pass degrades to an empty path.
-Each paper carries every raw field
-unchanged plus `whatsNew, whyItMatters, summary, clusters[], relevance, score, mustRead,
-deepDive`. `deepDive` is `null` or `{ findings[], method, limitations[], fullText }`
+papers — anything else is dropped, and a failed pass degrades to an empty path. Each paper
+carries every raw field unchanged plus `whatsNew, whyItMatters, summary, clusters[],
+relevance, score, mustRead, deepDive`. `deepDive` is `null` or `{ findings[], method, limitations[], fullText }`
 where `fullText ∈ {read, abstract, unavailable}`.
 
 `render.mjs` consumes this contract directly, so the orchestrator and the smoke test both
@@ -81,7 +80,9 @@ validate against `fixtures/papers.enriched.sample.json`.
 `score = relevance × recencyDecay × citationBoost`, where `recencyDecay` favors newer
 papers (≈1.0 now, decaying toward ≈0.5 at the `--since` edge) and
 `citationBoost = 1 + log10(1 + citationCount) / 2`. Papers below a relevance floor are
-dropped; the top few by score become must-reads and seed `startHere`.
+dropped; the top few by score become must-reads and seed `startHere`. `readingPath` is not
+scored — it is a separate model pass that *orders* top-scoring papers pedagogically
+(foundational → specialized), so it deliberately need not match `startHere`'s ranking.
 
 ## Testing
 
