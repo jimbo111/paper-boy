@@ -664,7 +664,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
         + '<button type="button" class="btn" data-act="prev"' + (vi <= 0 ? ' disabled' : '') + ' aria-label="Previous paper">← Prev</button>'
         + '<button type="button" class="btn" data-act="next"' + (vi < 0 || vi >= vis.length - 1 ? ' disabled' : '') + ' aria-label="Next paper">Next →</button>'
         + '</span>';
-      h += '</div><div class="hint">j / k or ↑ / ↓ to navigate · ⏎ opens the paper · click any source tag to verify · '
+      h += '</div><div class="hint">j / k or ↑ / ↓ to navigate · ⏎ opens the paper at its source · '
         + readCount() + ' of ' + papers.length + ' read</div>';
       h += '<div class="deep-zone" id="deepZone">' + deepHtml(p.id) + '</div>';
       el.innerHTML = h;
