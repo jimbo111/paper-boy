@@ -468,6 +468,9 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
         return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
       });
     }
+    // Count/year fields are interpolated into markup without esc() — coerce them to
+    // real numbers so a non-numeric value from a source can never carry markup.
+    function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
     function primaryLink(p) { var l = p.links || {}; return l.arxiv || l.doi || l.pdf || l.landing || null; }
     // Only allow safe schemes for outbound links — paper URLs come from external APIs.
     function safeUrl(u) {
@@ -500,12 +503,12 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     }
     function visible() { return sorted(papers.filter(matches)); }
 
-    function tags(p) { return '<span class="tags">' + (p.sources || []).map(function (s) { return '<span class="tag ' + s + '">' + esc(s) + '</span>'; }).join('') + '</span>'; }
+    function tags(p) { return '<span class="tags">' + (p.sources || []).map(function (s) { return '<span class="tag ' + esc(s) + '">' + esc(s) + '</span>'; }).join('') + '</span>'; }
     function metaRow(p) {
       return tags(p)
         + (p.publishedDate ? '<span class="dot-sep">·</span><span>' + esc(p.publishedDate) + '</span>' : '')
         + (p.venue ? '<span class="dot-sep">·</span><span>' + esc(p.venue) + '</span>' : '')
-        + '<span class="dot-sep">·</span><span class="cites">' + (p.citationCount || 0) + ' citations</span>';
+        + '<span class="dot-sep">·</span><span class="cites">' + num(p.citationCount) + ' citations</span>';
     }
 
     function entry(p) {
@@ -631,7 +634,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       h += '<span class="kick">' + ((p.clusters && p.clusters.length) ? esc(p.clusters[0]) : 'Paper') + (p.mustRead ? ' · Must read' : '') + '</span>';
       h += '<h1>' + esc(p.title) + '</h1>';
       h += '<div class="byline">By ' + esc(authorLine(p)) + '</div>';
-      h += '<div class="meta">' + metaRow(p) + (p.influentialCitationCount ? '<span class="dot-sep">·</span><span>' + p.influentialCitationCount + ' influential</span>' : '') + '</div>';
+      h += '<div class="meta">' + metaRow(p) + (num(p.influentialCitationCount) ? '<span class="dot-sep">·</span><span>' + num(p.influentialCitationCount) + ' influential</span>' : '') + '</div>';
       h += '</div>';
       if (p.tldr) h += '<span class="section-t">TL;DR</span><blockquote class="pullquote">' + esc(p.tldr) + '</blockquote>';
       if (p.summary) h += '<span class="section-t">Summary</span><p class="body">' + esc(p.summary) + '</p>';
@@ -646,7 +649,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       if (p.related && p.related.length) {
         h += '<span class="section-t">Related work · most-cited references</span><ul class="findings">';
         h += p.related.map(function (r) {
-          var label = esc(r.title || 'Untitled') + (r.year ? ' (' + r.year + ')' : '')
+          var label = esc(r.title || 'Untitled') + (num(r.year) ? ' (' + num(r.year) + ')' : '')
             + (Number.isFinite(r.citationCount) ? ' · ' + r.citationCount + ' citations' : '');
           return '<li>' + (r.link ? '<a href="' + esc(safeUrl(r.link)) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>' : label) + '</li>';
         }).join('');
@@ -769,8 +772,13 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     }
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
-        if (exportMenu.classList.contains('open')) { setMenu(false); exportBtn.focus(); }
-        if (keyMenu.classList.contains('open')) { setKeyMenu(false); keyBtn.focus(); }
+        if (exportMenu.classList.contains('open')) { setMenu(false); exportBtn.focus(); return; }
+        if (keyMenu.classList.contains('open')) { setKeyMenu(false); keyBtn.focus(); return; }
+        // No menu open: Escape clears an active search (the natural undo for "/").
+        var sb = document.getElementById('search');
+        if (sb && (document.activeElement === sb || sb.value)) {
+          sb.value = ''; state.search = ''; sb.blur(); rerender();
+        }
         return;
       }
       var t = e.target;
@@ -982,6 +990,9 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       });
     }
     function rerender() { if (state.view === 'reader') renderReader(); else renderDashboard(); }
+    // Print always shows the Front Page (see @media print) — rebuild it first so
+    // printing from Reader view doesn't emit a stale, previously-rendered dashboard.
+    window.addEventListener('beforeprint', function () { renderDashboard(); });
     function anyFilter() { return !!(state.search || state.sources.size || state.clusters.size); }
     function clearFilters() {
       state.search = ''; document.getElementById('search').value = '';
@@ -1000,7 +1011,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       + '<span class="sep">/</span><b>' + ((DATA.clusters || []).length) + '</b> topics'
       + '<span class="sep">/</span><b id="readCount">' + readCount() + '</b> read'
       + '<span class="sep">/</span>since <b>' + esc(meta.since || 'n/a') + '</b>'
-      + '<span class="sep">/</span>arXiv <b>' + (src.arxiv || 0) + '</b> · S2 <b>' + (src.s2 || 0) + '</b> · OpenAlex <b>' + (src.openalex || 0) + '</b>';
+      + '<span class="sep">/</span>arXiv <b>' + num(src.arxiv) + '</b> · S2 <b>' + num(src.s2) + '</b> · OpenAlex <b>' + num(src.openalex) + '</b>';
     document.title = 'paper-boy — ' + (meta.topic || 'research');
     document.getElementById('search').addEventListener('input', function (e) { state.search = e.target.value; rerender(); });
     document.getElementById('sort').addEventListener('change', function (e) { state.sort = e.target.value; rerender(); });
