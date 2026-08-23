@@ -74,3 +74,33 @@ test('schema-less completion returns raw text', async () => {
   assert.equal(r.ok, true);
   assert.equal(r.data, 'plain text');
 });
+
+test('a truncated reply retries with a raised token ceiling and the original prompt', async () => {
+  const calls = [];
+  const provider = {
+    name: 'echo',
+    defaultModel: 'echo-1',
+    buildRequest: ({ prompt, maxTokens }) => { calls.push({ prompt, maxTokens }); return { url: 'http://x', method: 'POST', headers: {}, body: {} }; },
+    parseResponse: (b) => ({ text: b.text, stopReason: b.stop }),
+  };
+  const script = [
+    { text: '{"a": "cut off mid-str', stop: 'max_tokens' }, // truncated → unparseable
+    { text: '{"a": 1}', stop: 'stop' },
+  ];
+  const post = async () => ({ ok: true, status: 200, body: JSON.stringify(script.shift()) });
+  const client = makeClient({ provider, rps: 0, postImpl: post });
+  const r = await client.complete({ prompt: 'ORIGINAL', schema: { required: ['a'] }, maxTokens: 1000 });
+  assert.equal(r.ok, true);
+  assert.equal(r.data.a, 1);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[1].maxTokens, 2000); // doubled, not re-prompted at the same ceiling
+  assert.equal(calls[1].prompt, 'ORIGINAL'); // no repair preamble — the reply was cut, not malformed
+});
+
+test('LLM POSTs carry a long timeout override', async () => {
+  let seen;
+  const post = async (url, opts) => { seen = opts; return { ok: true, status: 200, body: JSON.stringify({ text: '{"a":1}' }) }; };
+  const client = makeClient({ provider: echoProvider(), rps: 0, postImpl: post });
+  await client.complete({ prompt: 'p', schema: { required: ['a'] } });
+  assert.equal(seen.timeout, 120000);
+});

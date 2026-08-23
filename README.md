@@ -30,7 +30,7 @@ than guessing. This is the entire value of the tool.
 ```bash
 git clone https://github.com/jimbo111/paper-boy.git
 cd paper-boy
-npm test   # optional: 117 tests, offline except one network smoke test
+npm test   # optional: 129 tests, offline except one network smoke test
 ```
 
 To use it inside Claude Code, install it as a plugin — the repo is its own marketplace:

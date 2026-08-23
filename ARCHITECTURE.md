@@ -29,7 +29,9 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 
 - `bin/fetch.mjs` — orchestrates the sources, interleaves their rankings, dedupes, writes `papers.raw.json`.
 - `lib/sources/{arxiv,semanticscholar,openalex}.mjs` — one adapter per source; each exports a pure URL builder, a pure parser, and a thin `fetch*` function.
-- `lib/dedup.mjs` — merges duplicates across sources by DOI → arXiv id → normalized title.
+- `lib/dedup.mjs` — merges duplicates across sources by DOI → arXiv id → normalized title
+  (a title-only match additionally requires compatible years, so distinct same-titled
+  papers stay separate).
 - `lib/http.mjs` — shared `fetch` wrapper with retry/backoff, timeout, and an injectable transport. `getJSON`/`getText` for sources; `postRaw` (returns `{ok,status,headers,body}`) for the LLM client.
 - `lib/slug.mjs` — slug + title normalization helpers.
 
@@ -42,7 +44,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
   - `anthropic.mjs` — Claude adapter (`/v1/messages`).
   - `openai-compat.mjs` — generic chat-completions builder/parser; `openai.mjs` and `deepseek.mjs` are thin presets over it.
   - `json.mjs` — the JSON repair ladder (fences → balanced-block scan → light fixes).
-  - `client.mjs` — sends requests through `postRaw`, applies a token-bucket rate limiter, and re-prompts on malformed JSON. Returns `{ok,data,error}`; never throws.
+  - `client.mjs` — sends requests through `postRaw` (with an LLM-scale timeout), applies a token-bucket rate limiter, re-prompts on malformed JSON, and retries a reply truncated at the token ceiling with a raised ceiling. Returns `{ok,data,error}`; never throws.
   - `fake.mjs` — deterministic offline client used when `PAPER_BOY_FAKE_LLM=1`.
 - `lib/enrich/prompts.mjs` — prompt text + JSON schemas + the anti-fabrication guardrail.
 - `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis.
