@@ -33,9 +33,15 @@ cd paper-boy
 npm test   # optional: 117 tests, offline except one network smoke test
 ```
 
-To use it as a Claude Code slash command, place (or symlink) this directory at
-`~/.claude/paper-boy/` and copy `command/paper-boy.md` into your Claude Code commands
-directory. Then run `/paper-boy <topic>` from a session.
+To use it inside Claude Code, install it as a plugin — the repo is its own marketplace:
+
+```
+/plugin marketplace add /path/to/paper-boy
+/plugin install paper-boy@paper-boy-marketplace
+```
+
+Then run `/paper-boy <topic>` from any session. The command invokes the bundled
+scripts via `${CLAUDE_PLUGIN_ROOT}`, so no extra setup is needed.
 
 ## The pipeline
 
