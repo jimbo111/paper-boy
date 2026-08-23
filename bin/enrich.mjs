@@ -95,4 +95,7 @@ async function main() {
   );
 }
 
-main();
+main().catch((err) => {
+  console.error(`paper-boy enrich: ${err.message || err}`);
+  process.exit(1);
+});
