@@ -44,3 +44,14 @@ test('mapOpenAlex normalizes live sample records', () => {
 test('mapOpenAlex handles empty data', () => {
   assert.deepEqual(mapOpenAlex(null), []);
 });
+
+test('derives the arXiv id from a DataCite 10.48550 DOI (ids.arxiv does not exist)', () => {
+  const out = mapOpenAlex({ results: [{
+    id: 'https://openalex.org/W1',
+    doi: 'https://doi.org/10.48550/arXiv.2312.10997',
+    display_name: 'A Preprint',
+    publication_year: 2024,
+  }] });
+  assert.equal(out[0].arxivId, '2312.10997');
+  assert.equal(out[0].links.arxiv, 'https://arxiv.org/abs/2312.10997');
+});
