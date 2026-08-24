@@ -50,7 +50,7 @@ There is nothing to install — paper-boy runs on the Node ≥ 18 standard libra
    A pass must never abort the run or introduce something the sources didn't return.
 3. Teach `lib/llm/fake.mjs` to answer the new schema so the offline path stays end-to-end.
 4. Surface it in `lib/markdown.mjs` and `template/reader.html`, and extend the JSON
-   contract in `ARCHITECTURE.md` plus the session workflow in `command/paper-boy.md`.
+   contract in `ARCHITECTURE.md` plus the session workflow in `commands/paper-boy.md`.
 5. Add tests for the happy path, an invented-id case, and a failed-pass case.
 
 ## How to add a data source

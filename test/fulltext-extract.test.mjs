@@ -50,3 +50,9 @@ test('full text is capped to the char budget', async () => {
   const { text } = await fetchFullText({ arxivId: '1', abstract: '' }, { getImpl: async () => big, cap: 1000 });
   assert.ok(text.length <= 1000);
 });
+
+test('an out-of-range numeric entity degrades to U+FFFD instead of throwing', () => {
+  const out = stripHtmlToText('<p>ok &#99999999; still ok</p>');
+  assert.ok(out.includes('ok'));
+  assert.ok(out.includes('�'));
+});

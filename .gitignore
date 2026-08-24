@@ -14,3 +14,7 @@ config.json
 CLAUDE.md
 .ui-design/
 tasks/
+
+# local plugin audit receipts (protect-mcp) — not part of the project
+receipts/
+review-receipts/

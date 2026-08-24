@@ -38,3 +38,7 @@ test('tryExtractJson returns ok:false instead of throwing', () => {
   assert.equal(r.ok, false);
   assert.match(r.error, /JSON/);
 });
+
+test('prose containing an earlier brace pair does not defeat extraction', () => {
+  assert.deepEqual(extractJson('Here is {not json} the result: {"a":1}'), { a: 1 });
+});

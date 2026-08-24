@@ -7,7 +7,7 @@ argument-hint: <topic> [--since YYYY-MM-DD] [--max 40] [--deep 5] [--no-open]
 
 Fetch **real** recent papers on a topic from arXiv + Semantic Scholar + OpenAlex, curate them, and deliver a self-contained interactive HTML reader. The Markdown report, enriched JSON, and BibTeX are all downloadable from the reader's **Export** menu.
 
-**Engine:** `~/.claude/paper-boy/` · **Output:** `~/paper-boy/<slug>/<date>/`
+**Engine:** the plugin's own `bin/` (`${CLAUDE_PLUGIN_ROOT}`) · **Output:** `~/paper-boy/<slug>/<date>/`
 
 ## Input
 
@@ -40,7 +40,7 @@ mkdir -p "$RUN"
 
 ### Step 2 — Fetch (deterministic)
 ```bash
-node ~/.claude/paper-boy/bin/fetch.mjs --query "<topic>" --since <SINCE> --max <MAX> --out "$RUN/papers.raw.json"
+node "${CLAUDE_PLUGIN_ROOT}/bin/fetch.mjs" --query "<topic>" --since <SINCE> --max <MAX> --out "$RUN/papers.raw.json"
 ```
 Read `$RUN/papers.raw.json`. If `meta.total` is 0, tell the user no papers matched and suggest broader terms or an earlier `--since`. Stop.
 (Note: Semantic Scholar's free API is rate-limited and may return 0 — that's fine, arXiv + OpenAlex carry the run. Set `S2_API_KEY` in the env for better S2 coverage. Optionally set `PAPER_BOY_MAILTO` to your email to join OpenAlex's faster "polite pool".)
@@ -98,7 +98,7 @@ Re-write `$RUN/papers.enriched.json` with the deepDive fields filled in.
 
 ### Step 5 — Render (deterministic)
 ```bash
-node ~/.claude/paper-boy/bin/render.mjs --in "$RUN/papers.enriched.json" <--no-open if requested>
+node "${CLAUDE_PLUGIN_ROOT}/bin/render.mjs" --in "$RUN/papers.enriched.json" <--no-open if requested>
 ```
 This writes a single self-contained `$RUN/index.html` and opens it. The Markdown report, enriched JSON, and BibTeX are embedded and downloadable from the reader's in-browser **Export** menu — they are no longer written to disk separately. `papers.raw.json` and `papers.enriched.json` remain on disk as the audit trail.
 

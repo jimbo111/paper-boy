@@ -146,3 +146,45 @@ test('all prompt schemas mark every object additionalProperties:false', async ()
     check(s, name);
   }
 });
+
+test('a run where every enrichment call fails throws instead of faking success', async () => {
+  const allFail = {
+    model: 'mock',
+    async complete() { return { ok: false, error: 'authentication failed (check API key)', status: 401 }; },
+  };
+  await assert.rejects(
+    () => enrichAll({ raw, client: allFail, fetchFullText: fakeFullText, today: '2026-06-08', deep: 0 }),
+    /all \d+ enrichment calls failed.*authentication failed/,
+  );
+});
+
+test('partial enrichment failures are logged, not fatal', async () => {
+  const failTitle = raw.papers[0].title;
+  const logs = [];
+  const out = await enrichAll({
+    raw, client: mockClient({ failTitles: new Set([failTitle]) }), fetchFullText: fakeFullText,
+    today: '2026-06-08', deep: 0, log: (m) => logs.push(m),
+  });
+  assert.ok(out.papers.length > 0);
+  assert.ok(logs.some((m) => /1 of \d+ paper enrichments failed/.test(m)), `logs: ${logs}`);
+});
+
+test('a deep-dive whose model call fails is labeled unavailable, never read', async () => {
+  const base = mockClient();
+  const client = {
+    model: 'mock',
+    async complete(args) {
+      if (args.schema && args.schema.required.includes('findings')) {
+        return { ok: false, error: 'simulated deep-dive failure' };
+      }
+      return base.complete(args);
+    },
+  };
+  const out = await enrichAll({ raw, client, fetchFullText: fakeFullText, today: '2026-06-08', deep: 2 });
+  const dived = out.papers.filter((p) => p.deepDive);
+  assert.ok(dived.length > 0);
+  for (const p of dived) {
+    assert.equal(p.deepDive.fullText, 'unavailable');
+    assert.deepEqual(p.deepDive.findings, []);
+  }
+});

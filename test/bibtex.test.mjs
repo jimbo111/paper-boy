@@ -30,3 +30,14 @@ test('tolerates missing fields', () => {
   assert.match(bib, /@article\{anonndlonely,/);
   assert.match(bib, /title=\{Lonely Paper\}/);
 });
+
+test('colliding citekeys are disambiguated when a shared usedKeys set is passed', () => {
+  const a = { authors: ['Wei Chen'], year: 2026, title: 'Efficient Adapters for VLMs' };
+  const b = { authors: ['Li Chen'], year: 2026, title: 'Efficient Prompt Tuning' };
+  const used = new Set();
+  const ka = toBibtex(a, used).match(/^@article\{([^,]+),/)[1];
+  const kb = toBibtex(b, used).match(/^@article\{([^,]+),/)[1];
+  assert.equal(ka, 'chen2026efficient');
+  assert.equal(kb, 'chen2026efficientb');
+  assert.notEqual(ka, kb);
+});

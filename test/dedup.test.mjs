@@ -53,3 +53,29 @@ test('does not merge distinct untitled papers on the empty-title key', () => {
   const b = mk({ id: 's2:b', title: null, sources: ['openalex'] });
   assert.equal(dedupeMerge([a, b]).length, 2);
 });
+
+test('absorbed entries leave no stale keys behind (alternate-title resurrection)', () => {
+  // "Baz" merges into the DOI cluster via entry b; when a bridge record later absorbs
+  // that cluster, the "Baz" title key must follow it — a fifth record titled "Baz"
+  // must land in the merged entry, not resurrect as a duplicate.
+  const a = mk({ id: '1', title: 'Foo', arxivId: 'X' });
+  const b = mk({ id: '2', title: 'Bar', doi: '10.1/d' });
+  const c = mk({ id: '3', title: 'Baz', doi: '10.1/d' });
+  const d = mk({ id: '4', title: 'Quux', arxivId: 'X', doi: '10.1/d' }); // bridges a and b/c
+  const e = mk({ id: '5', title: 'Baz' });
+  const out = dedupeMerge([a, b, c, d, e]);
+  assert.equal(out.length, 1);
+});
+
+test('same title but incompatible years stays two papers', () => {
+  const a = mk({ id: '1', title: 'Editorial', year: 2019, publishedDate: '2019-03-01' });
+  const b = mk({ id: '2', title: 'Editorial', year: 2026, publishedDate: '2026-02-01' });
+  assert.equal(dedupeMerge([a, b]).length, 2);
+});
+
+test('same title with a missing or adjacent year still merges', () => {
+  const a = mk({ id: '1', title: 'Same Study', year: 2025, sources: ['arxiv'] });
+  const b = mk({ id: '2', title: 'Same Study', year: null, sources: ['s2'] });
+  const c = mk({ id: '3', title: 'Same Study', year: 2026, sources: ['openalex'] });
+  assert.equal(dedupeMerge([a, b, c]).length, 1);
+});
