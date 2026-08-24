@@ -88,8 +88,9 @@ scored — it is a separate model pass that *orders* top-scoring papers pedagogi
 
 ## Testing
 
-All tests use `node:test` and run offline. Unit tests cover the source parsers, dedup,
-BibTeX, HTML safety, config precedence, the provider request builders, the JSON repair
-ladder, the LLM client's repair/error handling, and the full-text ladder. Two smoke tests
+All tests use `node:test`. Every test runs offline except one live fetch smoke test,
+which `PAPER_BOY_SKIP_NET=1` (`npm run test:offline`) skips. Unit tests cover the source
+parsers, dedup, BibTeX, HTML safety, config precedence, the provider request builders, the
+JSON repair ladder, the LLM client's repair/error handling, and the full-text ladder. Two smoke tests
 shell out to the CLIs: `enrich.mjs` under the fake LLM, and `render.mjs` against the
 enriched fixture.

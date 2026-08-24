@@ -2,7 +2,7 @@
 
 Fetch **real** recent academic papers on a topic from arXiv, Semantic Scholar, and
 OpenAlex, curate them with an LLM, and deliver a **single self-contained HTML reader**
-you can open offline. The Markdown report, enriched JSON, and BibTeX are all
+you can open offline. The Markdown report, enriched JSON, BibTeX, and RIS are all
 downloadable from the reader's in-browser **Export** menu.
 
 It runs two ways:
@@ -33,12 +33,16 @@ cd paper-boy
 npm test   # optional: 129 tests, offline except one network smoke test
 ```
 
-To use it inside Claude Code, install it as a plugin — the repo is its own marketplace:
+To use it inside Claude Code, install it as a plugin — the repo is its own marketplace,
+so no clone is needed:
 
 ```
-/plugin marketplace add /path/to/paper-boy
+/plugin marketplace add jimbo111/paper-boy
 /plugin install paper-boy@paper-boy-marketplace
 ```
+
+To install from a local checkout instead (for development), point the marketplace at the
+directory: `/plugin marketplace add /path/to/paper-boy`.
 
 Then run `/paper-boy <topic>` from any session. The command invokes the bundled
 scripts via `${CLAUDE_PLUGIN_ROOT}`, so no extra setup is needed.
@@ -79,7 +83,7 @@ node bin/render.mjs --in run/papers.enriched.json
 
 | Provider | `--provider` | API key env var | Default model |
 |----------|--------------|-----------------|---------------|
-| Anthropic (Claude) | `anthropic` | `ANTHROPIC_API_KEY` | `claude-opus-4-8` |
+| Anthropic (Claude) | `anthropic` | `ANTHROPIC_API_KEY` | `claude-opus-5` |
 | OpenAI (GPT) | `openai` | `OPENAI_API_KEY` | `gpt-4o` |
 | DeepSeek | `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` |
 | OpenAI-compatible / local | `openai-compat` | `PAPER_BOY_API_KEY` | (pass `--model`) |
@@ -109,7 +113,7 @@ Optional config file at `~/.config/paper-boy/config.json` (override the path wit
 ```json
 {
   "provider": "anthropic",
-  "model": "claude-opus-4-8",
+  "model": "claude-opus-5",
   "apiKey": "sk-...",
   "maxConcurrency": 4,
   "rps": 2,
