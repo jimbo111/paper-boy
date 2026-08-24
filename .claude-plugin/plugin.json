@@ -1,7 +1,7 @@
 {
   "name": "paper-boy",
   "description": "Fetch real recent academic papers on a topic (arXiv + Semantic Scholar + OpenAlex) and deliver them as a self-contained interactive HTML reader with Markdown / JSON / BibTeX / RIS export.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": { "name": "jimbo111" },
   "homepage": "https://github.com/jimbo111/paper-boy",
   "license": "MIT",

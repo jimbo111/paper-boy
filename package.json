@@ -1,6 +1,6 @@
 {
   "name": "paper-boy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fetch real recent academic papers on a topic and deliver them as a self-contained interactive HTML reader, with Markdown / JSON / BibTeX export.",
   "license": "MIT",
   "type": "module",
