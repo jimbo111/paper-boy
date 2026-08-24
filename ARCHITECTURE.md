@@ -28,7 +28,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 ### Stage 1 — fetch
 
 - `bin/fetch.mjs` — orchestrates the sources, interleaves their rankings, dedupes, writes `papers.raw.json`.
-- `lib/sources/{arxiv,semanticscholar,openalex}.mjs` — one adapter per source; each exports a pure URL builder, a pure parser, and a thin `fetch*` function.
+- `lib/sources/{arxiv,semanticscholar,openalex}.mjs` — one adapter per source; each exports a pure URL builder, a pure parser, and a thin `fetch*` function. `fetch*` returns `null` when the query itself failed (vs `[]` for a real empty result) so `bin/fetch.mjs` can tell a down source from no hits.
 - `lib/dedup.mjs` — merges duplicates across sources by DOI → arXiv id → normalized title
   (a title-only match additionally requires compatible years, so distinct same-titled
   papers stay separate).
@@ -47,7 +47,7 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
   - `client.mjs` — sends requests through `postRaw` (with an LLM-scale timeout), applies a token-bucket rate limiter, re-prompts on malformed JSON, and retries a reply truncated at the token ceiling with a raised ceiling. Returns `{ok,data,error}`; never throws.
   - `fake.mjs` — deterministic offline client used when `PAPER_BOY_FAKE_LLM=1`.
 - `lib/enrich/prompts.mjs` — prompt text + JSON schemas + the anti-fabrication guardrail.
-- `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis.
+- `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis. Individual pass failures are logged and degrade safely; only a run where **every** per-paper call fails throws (so a bad key can't masquerade as a successful run).
 - `lib/fulltext/extract.mjs` — the dependency-free full-text ladder (ar5iv → arXiv HTML → abstract) and HTML-to-text stripper.
 - `lib/sources/openalex.mjs` — also exposes `fetchRelated`, the optional citation-graph expander that attaches each must-read's most-cited references (`--related N`, off by default).
 

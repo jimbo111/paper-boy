@@ -35,7 +35,9 @@ There is nothing to install — paper-boy runs on the Node ≥ 18 standard libra
    implement the adapter interface directly: a pure
    `buildRequest({ model, apiKey, baseUrl, system, prompt, schema, maxTokens })` returning
    `{ url, method, headers, body }`, and a pure `parseResponse(body)` returning
-   `{ text, usage, stopReason }`.
+   `{ text, usage, stopReason }`. Map the provider's stop/finish reason onto `stopReason`
+   faithfully — the client treats `max_tokens` / `length` as truncation and retries with a
+   raised token ceiling.
 2. Register it in `lib/llm/provider.mjs`.
 3. If it uses a conventional key env var, add it to `KEY_ENV` in `lib/config.mjs`.
 4. Add a test mirroring `test/llm-openai-compat.test.mjs`.
@@ -56,7 +58,9 @@ There is nothing to install — paper-boy runs on the Node ≥ 18 standard libra
 ## How to add a data source
 
 1. Add `lib/sources/<name>.mjs` with a pure URL/query builder, a pure parser that returns
-   papers in the raw schema (see `ARCHITECTURE.md`), and a thin `fetch*` function.
+   papers in the raw schema (see `ARCHITECTURE.md`), and a thin `fetch*` function. The
+   `fetch*` function returns `null` when the query itself failed (network/HTTP error) and
+   `[]` only for a genuine empty result — `bin/fetch.mjs` warns on the former.
 2. Wire it into `bin/fetch.mjs`'s parallel fetch + interleave.
 3. Add a fixture under `fixtures/` and a parser test.
 

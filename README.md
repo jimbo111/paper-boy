@@ -118,7 +118,9 @@ Optional config file at `~/.config/paper-boy/config.json` (override the path wit
 ```
 
 API keys are never logged. A malformed config file is ignored with a warning rather than
-aborting the run. Keep any local `config.json` or `.env` out of version control (both are
+aborting the run. Individual model-call failures are logged and tolerated, but if **every**
+call fails (revoked key, wrong model name), enrich exits non-zero rather than writing
+placeholder output. Keep any local `config.json` or `.env` out of version control (both are
 gitignored).
 
 ### Data-source keys (optional)
@@ -170,7 +172,7 @@ rather than a search-results page, so you can enter a field you don't know yet:
   (TL;DR, summary, what's new, why it matters, abstract, related work, and — where a
   full-text deep-dive succeeded — its findings, method, and limitations).
 - **Search and filter** — free-text search plus source and topic filters; `/` focuses the
-  search box from anywhere.
+  search box from anywhere and `Esc` clears it (menus close first if one is open).
 - **Keyboard** — in Reader view, `j` / `k` (or `↑` / `↓`) move through papers and `⏎` opens
   the current one at its source. **Prev** / **Next** buttons step through them by mouse or
   touch.

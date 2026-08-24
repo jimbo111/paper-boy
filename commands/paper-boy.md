@@ -42,6 +42,7 @@ mkdir -p "$RUN"
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/bin/fetch.mjs" --query "<topic>" --since <SINCE> --max <MAX> --out "$RUN/papers.raw.json"
 ```
+If the script exits non-zero, report its error message to the user and stop — a bad `--since` or all sources failing is not the same as "no papers matched".
 Read `$RUN/papers.raw.json`. If `meta.total` is 0, tell the user no papers matched and suggest broader terms or an earlier `--since`. Stop.
 (Note: Semantic Scholar's free API is rate-limited and may return 0 — that's fine, arXiv + OpenAlex carry the run. Set `S2_API_KEY` in the env for better S2 coverage. Optionally set `PAPER_BOY_MAILTO` to your email to join OpenAlex's faster "polite pool".)
 
