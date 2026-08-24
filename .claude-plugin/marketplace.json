@@ -1,10 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "paper-boy-marketplace",
-  "version": "0.1.0",
-  "description": "Local marketplace for the paper-boy plugin",
+  "version": "0.1.1",
+  "description": "Marketplace for paper-boy: recent academic papers on any topic, delivered as a self-contained interactive HTML reader.",
   "owner": {
-    "name": "jimbo111"
+    "name": "jimbo111",
+    "url": "https://github.com/jimbo111"
   },
   "plugins": [
     {
