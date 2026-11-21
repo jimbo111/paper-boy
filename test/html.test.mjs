@@ -88,8 +88,8 @@ test('embeds the editorial typeface inline — no web-font fetch', () => {
 });
 
 test('interactive cards / list items / chips are real buttons (keyboard + a11y)', () => {
-  assert.ok(/<button type="button" class="entry /.test(tpl), 'front-page entries are buttons');
-  assert.ok(/<button type="button" class="ritem /.test(tpl), 'reader list items are buttons');
+  assert.ok(/<a class="ref-t" href="#" data-act="open"/.test(tpl), 'overview entries open via focusable links');
+  assert.ok(/<button type="button" class="ritem/.test(tpl), 'reader list items are buttons');
   assert.ok(/<button type="button" class="chip"/.test(tpl), 'filter chips are buttons');
   assert.ok(tpl.includes('aria-pressed'), 'chips/toggles expose pressed state');
 });

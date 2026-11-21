@@ -151,7 +151,7 @@ deep-dive never aborts the run — that paper simply keeps its abstract-level su
 ## Related work (optional)
 
 Pass `--related N` to enrich to expand each must-read paper's **most-cited references**
-via the OpenAlex citation graph. This is deterministic (no AI key required) and off by
+via the OpenAlex citation graph. This is deterministic (no API key required) and off by
 default:
 
 ```bash
@@ -164,14 +164,15 @@ simply yields an empty result.
 
 ## Using the reader
 
-`index.html` opens in any browser, offline, with no install. It is laid out as a briefing
-rather than a search-results page, so you can enter a field you don't know yet:
+`index.html` opens in any browser, offline, with no install. It is typeset like a journal
+article (Latin Modern, the LaTeX typeface) rather than a search-results page, so you can
+enter a field you don't know yet:
 
+- **Overview** — a title block, the cross-paper trend as the abstract, then numbered
+  sections: the reading path first, then one section per theme with a one-line synthesis
+  and its papers as a numbered bibliography. A paper keeps its `[n]` everywhere.
 - **Reading path** — a short ordered on-ramp (up to five papers), foundational first, each
   with one line on why to read it at that point. Start here if the topic is new to you.
-  It sits on the Front Page, not a separate view.
-- **Front Page** — the highest-scoring paper as the lead story, then papers grouped into
-  named themes, each with a one-line synthesis of what the group collectively shows.
 - **Reader** — a two-pane view: paper list on the left, the full write-up on the right
   (TL;DR, summary, what's new, why it matters, abstract, related work, and — where a
   full-text deep-dive succeeded — its findings, method, and limitations).
@@ -182,8 +183,8 @@ rather than a search-results page, so you can enter a field you don't know yet:
   touch.
 - **Read tracking** — mark papers read; progress is kept per topic in your browser, so
   you can pick a long run back up later.
-- **Day and night editions** — defaults to your system theme, toggleable, and remembers
-  your choice from then on. Printing always uses the day edition.
+- **Light and dark** — defaults to your system theme, toggleable, and remembers your
+  choice from then on. Printing always uses the light version.
 
 ## Exports
 
@@ -191,11 +192,11 @@ The reader's **Export** menu downloads everything client-side, with nothing writ
 server: the Markdown report, the enriched JSON, a **BibTeX** library, and an **RIS** file
 for direct import into Zotero, Mendeley, or EndNote.
 
-## Going deeper from the reader (bring your own key)
+## Analyzing abstracts in the reader (bring your own key)
 
 Every report ships with full summaries already written — no key needed to read it. If you
-want to dig further into a specific paper, the reader has an **AI key** panel: paste your
-own Anthropic or OpenAI key and a **✨ Go deeper** button on each paper produces a live
+want to dig further into a specific paper, the reader has an **API key** panel: paste your
+own Anthropic or OpenAI key and an **Analyze abstract** button on each paper produces a live
 structured analysis (findings, method, limitations, significance).
 
 - The key is sent **directly from the page to the provider you choose** and is never
@@ -226,5 +227,6 @@ and `CONTRIBUTING.md` for how to add a provider or data source.
 
 ## License
 
-MIT — see `LICENSE`. The bundled Newsreader font is licensed separately under the SIL
-Open Font License (`template/fonts/OFL.txt`).
+MIT — see `LICENSE`. The bundled typeface is a renamed Latin subset of Latin Modern Roman,
+distributed under the GUST Font License (`template/fonts/README-fonts.txt`,
+`template/fonts/GUST-FONT-LICENSE.txt`).
