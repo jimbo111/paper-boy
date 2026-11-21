@@ -14,3 +14,8 @@ This is not the original Latin Modern distribution. The original is available
 from the URL above. Use and distribution are under the GUST Font License
 (GUST-FONT-LICENSE.txt in this directory), which is the LaTeX Project Public
 License 1.3c or later plus the renaming request.
+
+The README graphics in docs/assets/*.svg embed the same Roman subset plus
+"PB Latin Modern Mono", a Latin subset of Latin Modern Mono 10 Regular
+(lmmono10-regular.otf, same source), converted and renamed the same way and
+under the same license.

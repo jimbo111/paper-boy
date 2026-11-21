@@ -1,69 +1,114 @@
-# paper-boy
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-dark.svg">
+    <img src="docs/assets/hero-light.svg" width="880" alt="paper-boy. Typing /paper-boy speculative decoding fetches 34 candidate papers from arXiv, Semantic Scholar and OpenAlex, keeps 10 in 3 themes, and writes one index.html.">
+  </picture>
+</p>
 
-Fetch **real** recent academic papers on a topic from arXiv, Semantic Scholar, and
-OpenAlex, curate them with an LLM, and deliver a **single self-contained HTML reader**
-you can open offline. The Markdown report, enriched JSON, BibTeX, and RIS are all
-downloadable from the reader's in-browser **Export** menu.
+<p align="center">
+  <a href="https://github.com/jimbo111/paper-boy/tags"><img alt="version" src="https://img.shields.io/github/v/tag/jimbo111/paper-boy?style=flat-square&label=version&color=1d4e89"></a>
+  <img alt="zero dependencies" src="https://img.shields.io/badge/dependencies-0-1d4e89?style=flat-square">
+  <img alt="Node 18 or later" src="https://img.shields.io/badge/node-%E2%89%A518-1d4e89?style=flat-square">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-1d4e89?style=flat-square"></a>
+</p>
 
-It runs two ways:
+<p align="center">
+  Give it a topic. It finds the papers published on it in the last few months,<br>
+  reads their abstracts, sorts them into themes, picks where to start,<br>
+  and hands you <b>one HTML file</b> that reads like a journal article and works offline.
+</p>
 
-- as a **slash command inside Claude Code** (`/paper-boy <topic>`), where the editing
-  session does the curation, or
-- as a **standalone CLI** with your own AI provider key (Anthropic, OpenAI, DeepSeek,
-  or any OpenAI-compatible endpoint).
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#what-you-get">What you get</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#standalone-usage">Standalone CLI</a> ·
+  <a href="#using-the-reader">Using the reader</a>
+</p>
 
-## The one rule: no fabrication
+<p align="center">
+  <img src="docs/assets/demo.gif" width="880" alt="The reader: an overview with an abstract and numbered sections of references, then a two-pane reader stepping through papers with the j key, then dark mode.">
+  <br>
+  <sub>A real run on <i>speculative decoding</i>: 10 of 34 retrieved papers, each summary written from that paper's own abstract.</sub>
+</p>
 
-Papers are fetched, never invented. Every title, link, date, author, and citation count
-comes from a real source response. The LLM only annotates papers that the fetch step
-actually returned, grounded strictly in their real abstracts (and full text, when a
-deep-dive can retrieve it). If a paper has no abstract, the summary stays minimal rather
-than guessing. This is the entire value of the tool.
+## Quick start
 
-## Requirements
-
-- Node.js ≥ 18 (uses the built-in test runner and `fetch`; **zero npm dependencies**).
-- For the standalone path: an API key for one of the supported providers.
-
-## Install
-
-```bash
-git clone https://github.com/jimbo111/paper-boy.git
-cd paper-boy
-npm test   # optional: 129 tests, offline except one network smoke test
-```
-
-To use it inside Claude Code, install it as a plugin — the repo is its own marketplace,
-so no clone is needed:
+paper-boy is a Claude Code plugin. Its repo is its own marketplace, so there is nothing to clone:
 
 ```
 /plugin marketplace add jimbo111/paper-boy
 /plugin install paper-boy@paper-boy-marketplace
 ```
 
-To install from a local checkout instead (for development), point the marketplace at the
-directory: `/plugin marketplace add /path/to/paper-boy`.
-
-Then run `/paper-boy <topic>` from any session. The command invokes the bundled
-scripts via `${CLAUDE_PLUGIN_ROOT}`, so no extra setup is needed.
-
-## The pipeline
-
-paper-boy is three small, composable stages:
+Then ask for a topic:
 
 ```
-fetch  →  enrich  →  render
+/paper-boy speculative decoding
+/paper-boy protein structure prediction --since 2026-01-01 --max 30
 ```
 
-1. **fetch** (`bin/fetch.mjs`) — queries arXiv + Semantic Scholar + OpenAlex in
-   parallel, dedupes by DOI / arXiv id / normalized title, and writes
-   `papers.raw.json`. Deterministic, no LLM.
-2. **enrich** (`bin/enrich.mjs`) — calls your chosen AI provider to add per-paper
-   summaries, relevance scores, thematic clusters, an ordered **reading path** for
-   newcomers to the topic, and full-text deep-dives, writing `papers.enriched.json`.
-3. **render** (`bin/render.mjs`) — turns the enriched JSON into a single
-   `index.html` with fonts and data inlined. No external requests at view time.
-   See [Using the reader](#using-the-reader).
+The finished page opens in your browser and is saved under `~/paper-boy/<topic>/<date>/`. No API key is needed in this mode; the Claude Code session does the reading. To run it without Claude Code, see [Standalone usage](#standalone-usage).
+
+| Flag | What it does | Default |
+|---|---|---|
+| `--since YYYY-MM-DD` | earliest publication date | 18 months ago |
+| `--max N` | how many papers to keep | 40 |
+| `--deep N` | how many top papers get a full-text read | 5 |
+| `--field X` | an extra term to narrow the search, such as `cs.CV` | none |
+| `--no-open` | don't open the page when done | opens |
+
+## What you get
+
+**Real papers only.** Every title, author, date, link and citation count comes from an arXiv, Semantic Scholar or OpenAlex response. The model only annotates papers the search actually returned, and only from their abstracts or full text. Nothing is invented; a paper with no abstract gets a minimal note rather than a guess.
+
+**A way in.** A short reading path, foundational first, with a line on why each paper comes at that point. Then the papers grouped into themes, each with a one-line synthesis of what the group shows.
+
+**A page that reads like a paper.** Title block, abstract, numbered sections and a numbered bibliography, set in Latin Modern (the LaTeX typeface). A two-pane reader for going paper by paper with `j` and `k`. Light and dark, and it prints cleanly.
+
+**One file.** Fonts and data are inlined into a single `index.html`, a few hundred KB for a typical run. It makes no network requests except the links to the papers themselves, so you can archive it, email it, or open it on a plane.
+
+**Exports.** BibTeX, RIS (Zotero, Mendeley, EndNote), a Markdown report and the full JSON, all generated in the browser from the page itself.
+
+## How it works
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pipeline-dark.svg">
+    <img src="docs/assets/pipeline-light.svg" width="880" alt="Three stages: fetch from arXiv, Semantic Scholar and OpenAlex (deterministic, no model); enrich with summaries, themes and a reading path (written from each abstract); render one self-contained index.html (no external requests).">
+  </picture>
+</p>
+
+1. **fetch** (`bin/fetch.mjs`) queries arXiv, Semantic Scholar and OpenAlex in parallel, dedupes by DOI, arXiv id and normalized title, and writes `papers.raw.json`. Deterministic; no model involved.
+2. **enrich** (`bin/enrich.mjs`) adds per-paper summaries, relevance scores, themes, a reading path for newcomers, and full-text deep-dives, and writes `papers.enriched.json`. Inside Claude Code the session does this step; standalone, it calls the provider you choose.
+3. **render** (`bin/render.mjs`) turns the enriched JSON into the single `index.html`.
+
+Each stage is a small Node script with **zero npm dependencies**, so you can run, inspect or replace any of them on its own.
+
+## The one rule: no fabrication
+
+Papers are fetched, never invented. Every title, link, date, author, and citation count
+comes from a real source response. The LLM only annotates papers that the fetch step
+actually returned, grounded strictly in their real abstracts (and full text, when a
+deep-dive can retrieve it). Theme and reading-path entries that don't point at a real,
+kept paper are dropped. This is the entire value of the tool.
+
+## Requirements
+
+- Node.js 18 or later (uses the built-in test runner and `fetch`; **zero npm dependencies**).
+- Inside Claude Code: nothing else.
+- Standalone: an API key for one of the supported providers.
+
+To work on the code itself:
+
+```bash
+git clone https://github.com/jimbo111/paper-boy.git
+cd paper-boy
+npm test   # 138 tests, offline except one network smoke test
+```
+
+To try local changes in Claude Code, point the marketplace at your checkout:
+`/plugin marketplace add /path/to/paper-boy`.
 
 ## Standalone usage
 
