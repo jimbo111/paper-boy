@@ -191,7 +191,7 @@ structured findings, method, and limitations. The retrieval ladder is dependency
 Reliable PDF text extraction with zero dependencies is not feasible, so paper-boy does
 **not** parse PDFs by default. If a `pdftotext` binary is on your `PATH` you can wire it
 in as an optional escape hatch, but the default path relies on HTML renders. A failed
-deep-dive never aborts the run — that paper simply keeps its abstract-level summary.
+deep-dive never aborts the run; that paper simply keeps its abstract-level summary.
 
 ## Related work (optional)
 
@@ -204,7 +204,7 @@ node bin/enrich.mjs --in run/papers.raw.json --related 5
 ```
 
 Each must-read then carries a `related[]` list (title, authors, year, citations, link),
-shown in the reader under the paper and never fabricated — an unreachable reference list
+shown in the reader under the paper and never fabricated. An unreachable reference list
 simply yields an empty result.
 
 ## Using the reader
@@ -213,22 +213,23 @@ simply yields an empty result.
 article (Latin Modern, the LaTeX typeface) rather than a search-results page, so you can
 enter a field you don't know yet:
 
-- **Overview** — a title block, the cross-paper trend as the abstract, then numbered
+- **Overview**: a title block, the cross-paper trend as the abstract, then numbered
   sections: the reading path first, then one section per theme with a one-line synthesis
   and its papers as a numbered bibliography. A paper keeps its `[n]` everywhere.
-- **Reading path** — a short ordered on-ramp (up to five papers), foundational first, each
+- **Reading path**: a short ordered on-ramp (up to five papers), foundational first, each
   with one line on why to read it at that point. Start here if the topic is new to you.
-- **Reader** — a two-pane view: paper list on the left, the full write-up on the right
-  (TL;DR, summary, what's new, why it matters, abstract, related work, and — where a
-  full-text deep-dive succeeded — its findings, method, and limitations).
-- **Search and filter** — free-text search plus source and topic filters; `/` focuses the
+- **Reader**: a two-pane view with the paper list on the left and an article page on the
+  right: the paper's own abstract first, then in brief, summary, what's new, why it
+  matters, related work, and, where a full-text deep-dive succeeded, its findings, method,
+  and limitations.
+- **Search and filter**: free-text search plus source and topic filters; `/` focuses the
   search box from anywhere and `Esc` clears it (menus close first if one is open).
-- **Keyboard** — in Reader view, `j` / `k` (or `↑` / `↓`) move through papers and `⏎` opens
+- **Keyboard**: in Reader view, `j` / `k` (or `↑` / `↓`) move through papers and `⏎` opens
   the current one at its source. **Prev** / **Next** buttons step through them by mouse or
   touch.
-- **Read tracking** — mark papers read; progress is kept per topic in your browser, so
+- **Read tracking**: mark papers read; progress is kept per topic in your browser, so
   you can pick a long run back up later.
-- **Light and dark** — defaults to your system theme, toggleable, and remembers your
+- **Light and dark**: defaults to your system theme, toggleable, and remembers your
   choice from then on. Printing always uses the light version.
 
 ## Exports
@@ -239,7 +240,7 @@ for direct import into Zotero, Mendeley, or EndNote.
 
 ## Analyzing abstracts in the reader (bring your own key)
 
-Every report ships with full summaries already written — no key needed to read it. If you
+Every report ships with full summaries already written, so no key is needed to read it. If you
 want to dig further into a specific paper, the reader has an **API key** panel: paste your
 own Anthropic or OpenAI key and an **Analyze abstract** button on each paper produces a live
 structured analysis (findings, method, limitations, significance).
@@ -247,7 +248,7 @@ structured analysis (findings, method, limitations, significance).
 - The key is sent **directly from the page to the provider you choose** and is never
   written into any download. Choose **session-only** (held until you close the tab) or
   **remember on this device** (stored in the browser's local storage).
-- In-browser analysis is **abstract-based** — browsers can't fetch paper full text
+- In-browser analysis is **abstract-based**: browsers can't fetch paper full text
   (CORS), so for full-text deep-dives use the standalone `enrich` CLI.
 - Only Anthropic and OpenAI are offered here, because most other endpoints block
   direct browser calls.
@@ -256,9 +257,9 @@ structured analysis (findings, method, limitations, significance).
 
 Runs land in `~/paper-boy/<slug>/<date>/`:
 
-- `index.html` — the self-contained reader (open it in any browser)
-- `papers.raw.json` — the deduped fetch result (audit trail)
-- `papers.enriched.json` — the curated data the reader is built from
+- `index.html`: the self-contained reader (open it in any browser)
+- `papers.raw.json`: the deduped fetch result (audit trail)
+- `papers.enriched.json`: the curated data the reader is built from
 
 ## Development
 
@@ -272,6 +273,6 @@ and `CONTRIBUTING.md` for how to add a provider or data source.
 
 ## License
 
-MIT — see `LICENSE`. The bundled typeface is a renamed Latin subset of Latin Modern Roman,
+MIT; see `LICENSE`. The bundled typeface is a renamed Latin subset of Latin Modern Roman,
 distributed under the GUST Font License (`template/fonts/README-fonts.txt`,
 `template/fonts/GUST-FONT-LICENSE.txt`).

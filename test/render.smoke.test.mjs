@@ -33,7 +33,7 @@ test('render.mjs writes only a self-contained index.html (no report.md on disk)'
 
   // The Markdown report is embedded and recoverable (the .md download source).
   const md = embeddedReport(html);
-  assert.match(md, /# 📰 paper-boy/);
+  assert.match(md, /# paper-boy/);
   assert.ok(md.includes('Efficient LoRA Fine-Tuning for Multimodal Models'), 'report carries the paper');
   assert.ok(md.includes('confines low-rank adapters to the cross-attention layers'), 'per-paper summary is in the report');
 

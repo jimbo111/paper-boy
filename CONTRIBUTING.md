@@ -11,7 +11,7 @@ cd paper-boy
 npm test
 ```
 
-There is nothing to install — paper-boy runs on the Node ≥ 18 standard library.
+There is nothing to install: paper-boy runs on the Node ≥ 18 standard library.
 
 ## Ground rules
 
@@ -36,7 +36,7 @@ There is nothing to install — paper-boy runs on the Node ≥ 18 standard libra
    `buildRequest({ model, apiKey, baseUrl, system, prompt, schema, maxTokens })` returning
    `{ url, method, headers, body }`, and a pure `parseResponse(body)` returning
    `{ text, usage, stopReason }`. Map the provider's stop/finish reason onto `stopReason`
-   faithfully — the client treats `max_tokens` / `length` as truncation and retries with a
+   faithfully, because the client treats `max_tokens` / `length` as truncation and retries with a
    raised token ceiling.
 2. Register it in `lib/llm/provider.mjs`.
 3. If it uses a conventional key env var, add it to `KEY_ENV` in `lib/config.mjs`.
@@ -46,7 +46,9 @@ There is nothing to install — paper-boy runs on the Node ≥ 18 standard libra
 
 1. Add the prompt builder and its JSON schema to `lib/enrich/prompts.mjs`, ending the
    prompt with the shared `GUARDRAIL`. Every object in the schema needs
-   `additionalProperties: false` — structured-output endpoints reject it otherwise.
+   `additionalProperties: false`, and no numeric or length constraints (`minimum`,
+   `maxItems` and the like); structured-output endpoints reject both. `test/enrich.prompts.test.mjs`
+   checks every exported schema for these keywords.
 2. Call it from `lib/enrich/orchestrate.mjs` and **validate the result against real data**:
    discard ids the model invented, and degrade to a safe empty value when the pass fails.
    A pass must never abort the run or introduce something the sources didn't return.
@@ -60,7 +62,7 @@ There is nothing to install — paper-boy runs on the Node ≥ 18 standard libra
 1. Add `lib/sources/<name>.mjs` with a pure URL/query builder, a pure parser that returns
    papers in the raw schema (see `ARCHITECTURE.md`), and a thin `fetch*` function. The
    `fetch*` function returns `null` when the query itself failed (network/HTTP error) and
-   `[]` only for a genuine empty result — `bin/fetch.mjs` warns on the former.
+   `[]` only for a genuine empty result; `bin/fetch.mjs` warns on the former.
 2. Wire it into `bin/fetch.mjs`'s parallel fetch + interleave.
 3. Add a fixture under `fixtures/` and a parser test.
 

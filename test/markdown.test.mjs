@@ -7,7 +7,7 @@ const data = JSON.parse(readFileSync(new URL('../fixtures/papers.enriched.sample
 
 test('renderMarkdown emits all required sections', () => {
   const md = renderMarkdown(data);
-  assert.match(md, /^# 📰 paper-boy: vision language model fine-tuning/m);
+  assert.match(md, /^# paper-boy: vision language model fine-tuning/m);
   assert.match(md, /## What's trending/);
   assert.match(md, /## Start here/);
   assert.match(md, /## Sources/);
@@ -45,6 +45,6 @@ test('must-reads are starred and deep-dive findings render', () => {
 
 test('handles empty result set without throwing', () => {
   const md = renderMarkdown({ meta: { topic: 'x', sources: {} }, clusters: [], startHere: [], papers: [] });
-  assert.match(md, /# 📰 paper-boy: x/);
+  assert.match(md, /# paper-boy: x/);
   assert.match(md, /## Sources/);
 });

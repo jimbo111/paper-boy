@@ -1,7 +1,7 @@
 # Architecture
 
 paper-boy is a three-stage pipeline of small, single-purpose ES modules. Each stage is a
-CLI under `bin/` backed by pure helpers in `lib/`. There are no runtime dependencies — only
+CLI under `bin/` backed by pure helpers in `lib/`. There are no runtime dependencies; it uses only
 the Node standard library.
 
 ```
@@ -25,51 +25,51 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
 
 ## Modules
 
-### Stage 1 — fetch
+### Stage 1: fetch
 
-- `bin/fetch.mjs` — orchestrates the sources, interleaves their rankings, dedupes, writes `papers.raw.json`.
-- `lib/sources/{arxiv,semanticscholar,openalex}.mjs` — one adapter per source; each exports a pure URL builder, a pure parser, and a thin `fetch*` function. `fetch*` returns `null` when the query itself failed (vs `[]` for a real empty result) so `bin/fetch.mjs` can tell a down source from no hits.
-- `lib/dedup.mjs` — merges duplicates across sources by DOI → arXiv id → normalized title
+- `bin/fetch.mjs`: orchestrates the sources, interleaves their rankings, dedupes, writes `papers.raw.json`.
+- `lib/sources/{arxiv,semanticscholar,openalex}.mjs`: one adapter per source; each exports a pure URL builder, a pure parser, and a thin `fetch*` function. `fetch*` returns `null` when the query itself failed (vs `[]` for a real empty result) so `bin/fetch.mjs` can tell a down source from no hits.
+- `lib/dedup.mjs`: merges duplicates across sources by DOI → arXiv id → normalized title
   (a title-only match additionally requires compatible years, so distinct same-titled
   papers stay separate).
-- `lib/http.mjs` — shared `fetch` wrapper with retry/backoff, timeout, and an injectable transport. `getJSON`/`getText` for sources; `postRaw` (returns `{ok,status,headers,body}`) for the LLM client.
-- `lib/slug.mjs` — slug + title normalization helpers.
+- `lib/http.mjs`: shared `fetch` wrapper with retry/backoff, timeout, and an injectable transport. `getJSON`/`getText` for sources; `postRaw` (returns `{ok,status,headers,body}`) for the LLM client.
+- `lib/slug.mjs`: slug + title normalization helpers.
 
-### Stage 2 — enrich
+### Stage 2: enrich
 
-- `bin/enrich.mjs` — resolves config, selects a provider, builds a client, runs the orchestrator, writes `papers.enriched.json`.
-- `lib/config.mjs` — `resolveConfig` with **flag > env > file > default** precedence, resolved per key; provider-aware API-key lookup; never logs secrets.
-- `lib/llm/` — provider layer:
-  - `provider.mjs` — registry / resolver, including the generic `openai-compat` adapter.
-  - `anthropic.mjs` — Claude adapter (`/v1/messages`).
-  - `openai-compat.mjs` — generic chat-completions builder/parser; `openai.mjs` and `deepseek.mjs` are thin presets over it.
-  - `json.mjs` — the JSON repair ladder (fences → balanced-block scan → light fixes).
-  - `client.mjs` — sends requests through `postRaw` (with a 120s LLM timeout that is not retried — a slow completion would only be re-billed), applies a token-bucket rate limiter, re-prompts on malformed JSON, and retries a reply truncated at the token ceiling with a raised ceiling. Returns `{ok,data,error}`; never throws.
-  - `fake.mjs` — deterministic offline client used when `PAPER_BOY_FAKE_LLM=1`.
-- `lib/enrich/prompts.mjs` — prompt text + JSON schemas + the anti-fabrication guardrail.
-- `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis. Independent passes run concurrently (clustering with reading-path; deep-dives, related work and trending together), bounded by `--concurrency`. Individual pass failures are logged and degrade safely; only a run where **every** per-paper call fails throws (so a bad key can't masquerade as a successful run).
-- `lib/fulltext/extract.mjs` — the dependency-free full-text ladder (ar5iv → arXiv HTML → abstract) and HTML-to-text stripper.
-- `lib/sources/openalex.mjs` — also exposes `fetchRelated`, the optional citation-graph expander that attaches each must-read's most-cited references (`--related N`, off by default).
+- `bin/enrich.mjs`: resolves config, selects a provider, builds a client, runs the orchestrator, writes `papers.enriched.json`.
+- `lib/config.mjs`: `resolveConfig` with **flag > env > file > default** precedence, resolved per key; provider-aware API-key lookup; never logs secrets.
+- `lib/llm/`: provider layer:
+  - `provider.mjs`: registry / resolver, including the generic `openai-compat` adapter.
+  - `anthropic.mjs`: Claude adapter (`/v1/messages`).
+  - `openai-compat.mjs`: generic chat-completions builder/parser; `openai.mjs` and `deepseek.mjs` are thin presets over it.
+  - `json.mjs`: the JSON repair ladder (fences → balanced-block scan → light fixes).
+  - `client.mjs`: sends requests through `postRaw` (with a 120s LLM timeout that is not retried, since a slow completion would only be re-billed), applies a token-bucket rate limiter, re-prompts on malformed JSON, and retries a reply truncated at the token ceiling with a raised ceiling. Returns `{ok,data,error}`; never throws.
+  - `fake.mjs`: deterministic offline client used when `PAPER_BOY_FAKE_LLM=1`.
+- `lib/enrich/prompts.mjs`: prompt text + JSON schemas + the anti-fabrication guardrail.
+- `lib/enrich/orchestrate.mjs`: the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis. Independent passes run concurrently (clustering with reading-path; deep-dives, related work and trending together), bounded by `--concurrency`. Individual pass failures are logged and degrade safely; only a run where **every** per-paper call fails throws (so a bad key can't masquerade as a successful run).
+- `lib/fulltext/extract.mjs`: the dependency-free full-text ladder (ar5iv → arXiv HTML → abstract) and HTML-to-text stripper.
+- `lib/sources/openalex.mjs`: also exposes `fetchRelated`, the optional citation-graph expander that attaches each must-read's most-cited references (`--related N`, off by default).
 
-### Stage 3 — render
+### Stage 3: render
 
-- `bin/render.mjs` — injects enriched data, the Markdown report, and base64 fonts into the template; writes one self-contained `index.html`.
-- `lib/markdown.mjs` — the Markdown report renderer (embedded for the in-reader export).
-- `lib/html.mjs` — token replacement and `</script>`-safe data embedding.
-- `lib/bibtex.mjs` — per-paper BibTeX generation.
-- `lib/ris.mjs` — per-paper RIS generation (Zotero / Mendeley / EndNote import).
-- `template/reader.html` — the reader UI (vanilla JS, inline CSS); `template/fonts/` holds the inlined typeface (a renamed Latin subset of Latin Modern Roman). Laid out as a journal article: two views (Overview / Reader) over one filtered-and-sorted paper list, with stable `[n]` reference numbers, plus the reading path, search + source/topic filters, keyboard navigation, and read tracking (`localStorage`, keyed per topic slug). Theming is a `data-theme="dark"` attribute on `<html>` that restates the CSS custom properties; a pre-paint inline script applies the stored or system preference so there is no flash, and `@media print` always restores the light palette. Also hosts the optional **bring-your-own-key** panel: a reader can paste an Anthropic or OpenAI key and trigger a live, abstract-based "Analyze abstract" call per paper, called directly from the browser. The key stays client-side (session-only or localStorage) and is never serialized into any export.
+- `bin/render.mjs`: injects enriched data, the Markdown report, and base64 fonts into the template; writes one self-contained `index.html`.
+- `lib/markdown.mjs`: the Markdown report renderer (embedded for the in-reader export).
+- `lib/html.mjs`: token replacement and `</script>`-safe data embedding.
+- `lib/bibtex.mjs`: per-paper BibTeX generation.
+- `lib/ris.mjs`: per-paper RIS generation (Zotero / Mendeley / EndNote import).
+- `template/reader.html`: the reader UI (vanilla JS, inline CSS); `template/fonts/` holds the inlined typeface (a renamed Latin subset of Latin Modern Roman). Laid out as a journal article: two views (Overview / Reader) over one filtered-and-sorted paper list, with stable `[n]` reference numbers, plus the reading path, search + source/topic filters, keyboard navigation, and read tracking (`localStorage`, keyed per topic slug). Theming is a `data-theme="dark"` attribute on `<html>` that restates the CSS custom properties; a pre-paint inline script applies the stored or system preference so there is no flash, and `@media print` always restores the light palette. Also hosts the optional **bring-your-own-key** panel: a reader can paste an Anthropic or OpenAI key and trigger a live, abstract-based "Analyze abstract" call per paper, called directly from the browser. The key stays client-side (session-only or localStorage) and is never serialized into any export.
 
 ## JSON contracts
 
-**`papers.raw.json`** — `{ meta, papers[] }`. Each paper: `id, title, authors, abstract,
+**`papers.raw.json`**: `{ meta, papers[] }`. Each paper: `id, title, authors, abstract,
 tldr, publishedDate, year, venue, citationCount, influentialCitationCount, fields,
 sources, arxivId, doi, links`.
 
-**`papers.enriched.json`** — `{ meta, trending, clusters[], startHere[], readingPath[], papers[] }`.
+**`papers.enriched.json`**: `{ meta, trending, clusters[], startHere[], readingPath[], papers[] }`.
 Clusters are `{ name, synthesis, paperIds[] }`. `readingPath` is an ordered
 `{ id, why }[]` on-ramp (3–5 steps, foundational → specialized); ids must reference kept
-papers — anything else is dropped, and a failed pass degrades to an empty path. Each paper
+papers. Anything else is dropped, and a failed pass degrades to an empty path. Each paper
 carries every raw field unchanged plus `whatsNew, whyItMatters, summary, clusters[],
 relevance, score, mustRead, deepDive`. `deepDive` is `null` or `{ findings[], method, limitations[], fullText }`
 where `fullText ∈ {read, abstract, unavailable}`.
@@ -83,7 +83,7 @@ validate against `fixtures/papers.enriched.sample.json`.
 papers (≈1.0 now, decaying toward ≈0.5 at the `--since` edge) and
 `citationBoost = 1 + log10(1 + citationCount) / 2`. Papers below a relevance floor are
 dropped; the top few by score become must-reads and seed `startHere`. `readingPath` is not
-scored — it is a separate model pass that *orders* top-scoring papers pedagogically
+scored. It is a separate model pass that *orders* top-scoring papers pedagogically
 (foundational → specialized), so it deliberately need not match `startHere`'s ranking.
 
 ## Testing
