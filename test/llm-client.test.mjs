@@ -104,3 +104,22 @@ test('LLM POSTs carry a long timeout override', async () => {
   await client.complete({ prompt: 'p', schema: { required: ['a'] } });
   assert.equal(seen.timeout, 120000);
 });
+
+test('a non-positive maxConcurrency still runs calls instead of hanging', async () => {
+  for (const maxConcurrency of [0, -2, NaN]) {
+    const client = makeClient({ provider: echoProvider(), rps: 0, maxConcurrency, postImpl: scriptedPost([{ text: '{"a":1}' }]) });
+    const r = await Promise.race([
+      client.complete({ prompt: 'p', schema: {} }),
+      new Promise((res) => setTimeout(() => res('hung'), 500)),
+    ]);
+    assert.notEqual(r, 'hung', `maxConcurrency=${maxConcurrency} hung`);
+    assert.equal(r.ok, true);
+  }
+});
+
+test('a timed-out completion is reported as a timeout, not a network error', async () => {
+  const client = makeClient({ provider: echoProvider(), rps: 0, postImpl: async () => ({ ok: false, status: 0, timedOut: true }) });
+  const r = await client.complete({ prompt: 'p', schema: {} });
+  assert.equal(r.ok, false);
+  assert.match(r.error, /timed out/);
+});

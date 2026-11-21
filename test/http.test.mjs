@@ -27,3 +27,21 @@ test('does not retry on 404', async () => {
   assert.equal(out, null);
   assert.equal(calls, 1);
 });
+
+test('retryTimeout:false gives up after one timed-out attempt', async () => {
+  const { postRaw } = await import('../lib/http.mjs');
+  let calls = 0;
+  const fetchImpl = (url, init) => { calls++; return new Promise((_, rej) => init.signal.addEventListener('abort', () => rej(new Error('aborted')))); };
+  const out = await postRaw('http://x', { body: {}, timeout: 20, retries: 3, baseDelay: 0, retryTimeout: false, fetchImpl });
+  assert.equal(calls, 1);
+  assert.equal(out.ok, false);
+  assert.equal(out.timedOut, true);
+});
+
+test('timeouts are still retried by default (source fetches)', async () => {
+  let calls = 0;
+  const fetchImpl = (url, init) => { calls++; return new Promise((_, rej) => init.signal.addEventListener('abort', () => rej(new Error('aborted')))); };
+  const out = await getJSON('http://x', { timeout: 10, retries: 2, baseDelay: 0, fetchImpl });
+  assert.equal(out, null);
+  assert.equal(calls, 3);
+});

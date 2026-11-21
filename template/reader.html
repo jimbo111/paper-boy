@@ -448,7 +448,9 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
     var byId = {}; papers.forEach(function (p) { byId[p.id] = p; });
     var slug = (DATA.meta && DATA.meta.slug) || 'topic';
     var READKEY = 'paperboy:read:' + slug;
-    var read = new Set(JSON.parse(localStorage.getItem(READKEY) || '[]'));
+    // Blocked site data (SecurityError) or a corrupt saved value must not blank the page.
+    var read = new Set();
+    try { var savedRead = JSON.parse(localStorage.getItem(READKEY) || '[]'); if (Array.isArray(savedRead)) read = new Set(savedRead); } catch (e) {}
     // Cluster dot colors live in CSS vars so the night edition can restate them.
     var CDOT = ['var(--cdot-1)', 'var(--cdot-2)', 'var(--cdot-3)', 'var(--cdot-4)', 'var(--cdot-5)', 'var(--cdot-6)'];
     var firstPaint = true;
@@ -484,12 +486,14 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       return a.length > 3 ? a.slice(0, 3).join(', ') + ' et al.' : a.join(', ');
     }
 
-    function matches(p) {
-      if (state.search) {
-        var q = state.search.toLowerCase();
-        var hay = [p.title, (p.authors || []).join(' '), p.abstract, p.tldr, p.whatsNew, p.summary].join(' ').toLowerCase();
-        if (hay.indexOf(q) === -1) return false;
-      }
+    // Lowercased search text per paper, built once (kept off the paper objects so it
+    // never leaks into the JSON export).
+    var HAY = {};
+    function hayOf(p) {
+      return HAY[p.id] || (HAY[p.id] = [p.title, (p.authors || []).join(' '), p.abstract, p.tldr, p.whatsNew, p.summary].join(' ').toLowerCase());
+    }
+    function matches(p, q) {
+      if (q && hayOf(p).indexOf(q) === -1) return false;
       if (state.sources.size && !(p.sources || []).some(function (s) { return state.sources.has(s); })) return false;
       if (state.clusters.size && !(p.clusters || []).some(function (c) { return state.clusters.has(c); })) return false;
       return true;
@@ -501,7 +505,10 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       else a.sort(function (x, y) { return (y.score || 0) - (x.score || 0); });
       return a;
     }
-    function visible() { return sorted(papers.filter(matches)); }
+    function visible() {
+      var q = state.search.toLowerCase();
+      return sorted(papers.filter(function (p) { return matches(p, q); }));
+    }
 
     function tags(p) { return '<span class="tags">' + (p.sources || []).map(function (s) { return '<span class="tag ' + esc(s) + '">' + esc(s) + '</span>'; }).join('') + '</span>'; }
     function metaRow(p) {
@@ -622,9 +629,10 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
           + '<span class="meta">' + metaRow(p) + '</span></button>';
       }).join('') || '<p class="hint" style="padding:16px">No papers match the current filters.'
         + (anyFilter() ? ' <button type="button" class="btn" data-act="clearfilters">Clear filters</button>' : '') + '</p>';
-      renderDetail();
+      renderDetail(vis);
     }
-    function renderDetail() {
+    // `vis` is passed by renderReader so the list isn't filtered and sorted twice per paint.
+    function renderDetail(vis) {
       var el = document.getElementById('rdetail');
       var p = byId[state.selected];
       if (!p) { lastDetailId = null; el.innerHTML = '<div class="empty">Select a paper, or press <b>j</b> / <b>k</b> to move.</div>'; return; }
@@ -661,7 +669,7 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       h += '<button type="button" class="btn" data-act="bib" data-id="' + esc(p.id) + '" id="bibBtn">Copy BibTeX</button>';
       h += '<button type="button" class="btn ' + (read.has(p.id) ? 'on' : '') + '" data-act="read" data-id="' + esc(p.id) + '" id="readBtn">' + (read.has(p.id) ? '✓ Read' : 'Mark read') + '</button>';
       h += '<button type="button" class="btn" data-act="deeper" data-id="' + esc(p.id) + '">✨ Go deeper</button>';
-      var vis = visible();
+      vis = vis || visible();
       var vi = vis.findIndex(function (x) { return x.id === p.id; });
       h += '<span class="navpair">'
         + '<button type="button" class="btn" data-act="prev"' + (vi <= 0 ? ' disabled' : '') + ' aria-label="Previous paper">← Prev</button>'
@@ -940,25 +948,30 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       if (LLM.provider === 'anthropic') {
         url = 'https://api.anthropic.com/v1/messages';
         headers = { 'content-type': 'application/json', 'x-api-key': LLM.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
-        body = { model: LLM.model, max_tokens: 1024, system: SYS, messages: [{ role: 'user', content: deepPrompt(p) }] };
+        // Headroom for models that think before answering; only used tokens are billed.
+        body = { model: LLM.model, max_tokens: 4096, system: SYS, messages: [{ role: 'user', content: deepPrompt(p) }] };
       } else {
         url = 'https://api.openai.com/v1/chat/completions';
         headers = { 'content-type': 'application/json', 'authorization': 'Bearer ' + LLM.key };
-        body = { model: LLM.model, max_tokens: 1024, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: SYS }, { role: 'user', content: deepPrompt(p) }] };
+        // max_completion_tokens: o-series / gpt-5 reject max_tokens; reasoning counts against it.
+        body = { model: LLM.model, max_completion_tokens: 4096, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: SYS }, { role: 'user', content: deepPrompt(p) }] };
       }
       // 60s cap so a hung request can't leave the card spinning forever (the loading
-      // guard in goDeeper would otherwise block retrying that paper until reload).
+      // guard in goDeeper would otherwise block retrying that paper until reload). The
+      // deadline stays armed until the BODY is read — headers then a stalled stream
+      // must still time out.
       var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
       var timer = ctrl && setTimeout(function () { ctrl.abort(); }, 60000);
-      var res;
+      var res, j, errText = '';
       try {
         res = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(body), signal: ctrl && ctrl.signal });
+        if (res.ok) j = await res.json();
+        else { try { errText = await res.text(); } catch (e) {} }
       } catch (err) {
         if (ctrl && ctrl.signal.aborted) throw new Error('The provider did not respond within 60 seconds — try again.');
         throw err;
       } finally { if (timer) clearTimeout(timer); }
-      if (!res.ok) { var t = ''; try { t = await res.text(); } catch (e) {} throw new Error('HTTP ' + res.status + (t ? ' · ' + t.slice(0, 160) : '')); }
-      var j = await res.json();
+      if (!res.ok) throw new Error('HTTP ' + res.status + (errText ? ' · ' + errText.slice(0, 160) : ''));
       var text = LLM.provider === 'anthropic'
         ? (j.content || []).filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('')
         : (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
@@ -1013,7 +1026,14 @@ footer { font-family:var(--sans); text-align:center; color:var(--faint); font-si
       + '<span class="sep">/</span>since <b>' + esc(meta.since || 'n/a') + '</b>'
       + '<span class="sep">/</span>arXiv <b>' + num(src.arxiv) + '</b> · S2 <b>' + num(src.s2) + '</b> · OpenAlex <b>' + num(src.openalex) + '</b>';
     document.title = 'paper-boy — ' + (meta.topic || 'research');
-    document.getElementById('search').addEventListener('input', function (e) { state.search = e.target.value; rerender(); });
+    // Debounced: each repaint filters, sorts and rebuilds both panes. Reads the box's
+    // value when it fires, so an Escape/clear in the meantime is respected.
+    var searchTimer = null;
+    document.getElementById('search').addEventListener('input', function (e) {
+      var box = e.target;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () { state.search = box.value; rerender(); }, 120);
+    });
     document.getElementById('sort').addEventListener('change', function (e) { state.sort = e.target.value; rerender(); });
     chips('sourceChips', allSources(), state.sources);
     chips('clusterChips', allClusters(), state.clusters);

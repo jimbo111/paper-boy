@@ -44,10 +44,10 @@ fetch.mjs  →  papers.raw.json  →  enrich.mjs  →  papers.enriched.json  →
   - `anthropic.mjs` — Claude adapter (`/v1/messages`).
   - `openai-compat.mjs` — generic chat-completions builder/parser; `openai.mjs` and `deepseek.mjs` are thin presets over it.
   - `json.mjs` — the JSON repair ladder (fences → balanced-block scan → light fixes).
-  - `client.mjs` — sends requests through `postRaw` (with an LLM-scale timeout), applies a token-bucket rate limiter, re-prompts on malformed JSON, and retries a reply truncated at the token ceiling with a raised ceiling. Returns `{ok,data,error}`; never throws.
+  - `client.mjs` — sends requests through `postRaw` (with a 120s LLM timeout that is not retried — a slow completion would only be re-billed), applies a token-bucket rate limiter, re-prompts on malformed JSON, and retries a reply truncated at the token ceiling with a raised ceiling. Returns `{ok,data,error}`; never throws.
   - `fake.mjs` — deterministic offline client used when `PAPER_BOY_FAKE_LLM=1`.
 - `lib/enrich/prompts.mjs` — prompt text + JSON schemas + the anti-fabrication guardrail.
-- `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis. Individual pass failures are logged and degrade safely; only a run where **every** per-paper call fails throws (so a bad key can't masquerade as a successful run).
+- `lib/enrich/orchestrate.mjs` — the enrichment passes: per-paper annotation/scoring, low-relevance filtering, clustering, must-read/start-here selection, reading-path ordering, tiered full-text deep-dives, and trending synthesis. Independent passes run concurrently (clustering with reading-path; deep-dives, related work and trending together), bounded by `--concurrency`. Individual pass failures are logged and degrade safely; only a run where **every** per-paper call fails throws (so a bad key can't masquerade as a successful run).
 - `lib/fulltext/extract.mjs` — the dependency-free full-text ladder (ar5iv → arXiv HTML → abstract) and HTML-to-text stripper.
 - `lib/sources/openalex.mjs` — also exposes `fetchRelated`, the optional citation-graph expander that attaches each must-read's most-cited references (`--related N`, off by default).
 

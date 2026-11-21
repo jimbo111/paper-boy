@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "paper-boy-marketplace",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Marketplace for paper-boy: recent academic papers on any topic, delivered as a self-contained interactive HTML reader.",
   "owner": {
     "name": "jimbo111",
@@ -11,7 +11,7 @@
     {
       "name": "paper-boy",
       "description": "Fetch real recent academic papers on a topic and deliver them as a self-contained interactive HTML reader.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source": "."
     }
   ]
