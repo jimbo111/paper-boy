@@ -75,3 +75,13 @@ test('parseAtom handles empty input', () => {
   assert.deepEqual(parseAtom(''), []);
   assert.deepEqual(parseAtom(null), []);
 });
+
+test('parseAtom survives out-of-range numeric entities', () => {
+  const xmlBad = '<feed><entry><id>http://arxiv.org/abs/2401.88888v1</id>' +
+    '<published>2026-01-01T00:00:00Z</published>' +
+    '<title>Bad &#99999999; and &#x110000; entities</title>' +
+    '<summary>ok</summary><author><name>X</name></author></entry></feed>';
+  const papers = parseAtom(xmlBad);
+  assert.equal(papers.length, 1);
+  assert.equal(papers[0].title, 'Bad � and � entities');
+});

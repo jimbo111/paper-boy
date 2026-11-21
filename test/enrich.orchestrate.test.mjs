@@ -188,3 +188,28 @@ test('a deep-dive whose model call fails is labeled unavailable, never read', as
     assert.deepEqual(p.deepDive.findings, []);
   }
 });
+
+test('deep-dives overlap instead of running one at a time', async () => {
+  let inFlight = 0; let peak = 0;
+  const slowFullText = async (p) => {
+    inFlight++; peak = Math.max(peak, inFlight);
+    await new Promise((r) => setTimeout(r, 20));
+    inFlight--;
+    return { text: 'body', source: 'ar5iv' };
+  };
+  const out = await enrichAll({ raw, client: mockClient(), fetchFullText: slowFullText, today: '2026-06-08', deep: 3, maxConcurrency: 4 });
+  assert.ok(out.papers.filter((p) => p.deepDive).length >= 2);
+  assert.ok(peak >= 2, `peak concurrency ${peak}`);
+});
+
+test('related-work expansion overlaps across must-reads', async () => {
+  let inFlight = 0; let peak = 0;
+  const slowRelated = async () => {
+    inFlight++; peak = Math.max(peak, inFlight);
+    await new Promise((r) => setTimeout(r, 20));
+    inFlight--;
+    return [];
+  };
+  await enrichAll({ raw, client: mockClient(), fetchFullText: fakeFullText, expandRelated: slowRelated, related: 2, today: '2026-06-08', deep: 0 });
+  assert.ok(peak >= 2, `peak concurrency ${peak}`);
+});

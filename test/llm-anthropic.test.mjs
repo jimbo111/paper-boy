@@ -33,3 +33,9 @@ test('parseResponse concatenates text content blocks', () => {
 test('parseResponse throws on a refusal stop reason', () => {
   assert.throws(() => anthropic.parseResponse({ stop_reason: 'refusal', content: [] }), /refus/);
 });
+
+test('buildRequest leaves room for adaptive thinking by default', () => {
+  // Thinking tokens count against max_tokens; a 4k ceiling truncates short JSON replies.
+  const r = anthropic.buildRequest({ model: 'm', apiKey: 'k', prompt: 'p' });
+  assert.ok(r.body.max_tokens >= 16000, `max_tokens ${r.body.max_tokens}`);
+});
