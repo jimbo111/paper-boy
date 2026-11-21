@@ -94,7 +94,7 @@ test('a truncated reply retries with a raised token ceiling and the original pro
   assert.equal(r.data.a, 1);
   assert.equal(calls.length, 2);
   assert.equal(calls[1].maxTokens, 2000); // doubled, not re-prompted at the same ceiling
-  assert.equal(calls[1].prompt, 'ORIGINAL'); // no repair preamble — the reply was cut, not malformed
+  assert.equal(calls[1].prompt, 'ORIGINAL'); // no repair preamble; the reply was cut, not malformed
 });
 
 test('LLM POSTs carry a long timeout override', async () => {

@@ -131,7 +131,7 @@ test('abstract-only deep-dive is flagged and not fabricated', async () => {
 });
 
 // Structured-output endpoints (Anthropic json_schema) reject object schemas that
-// omit additionalProperties:false — assert every object in every schema has it.
+// omit additionalProperties:false; assert every object in every schema has it.
 test('all prompt schemas mark every object additionalProperties:false', async () => {
   const { PAPER_SCHEMA, CLUSTER_SCHEMA, DEEPDIVE_SCHEMA, TRENDING_SCHEMA, READING_PATH_SCHEMA } =
     await import('../lib/enrich/prompts.mjs');

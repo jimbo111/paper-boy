@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 // Pull the markdown back out of the embedded report-md block (JSON-string encoded,
-// with < / > neutralised) — mirrors what the in-browser Export menu does.
+// with < / > neutralised); mirrors what the in-browser Export menu does.
 function embeddedReport(html) {
   const m = html.match(/<script id="report-md" type="application\/json">([\s\S]*?)<\/script>/);
   assert.ok(m, 'report-md block exists');

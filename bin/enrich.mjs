@@ -47,7 +47,7 @@ async function main() {
 
   const cfg = resolveConfig({ flags });
 
-  // Offline deterministic path for CI / dry runs — no key, no network.
+  // Offline deterministic path for CI / dry runs: no key, no network.
   const fake = process.env.PAPER_BOY_FAKE_LLM === '1';
   let client;
   if (fake) {

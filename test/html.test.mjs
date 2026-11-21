@@ -36,7 +36,7 @@ test('reader offers an RIS / Zotero export action', () => {
   assert.ok(html.includes('data-dl="ris"'), 'RIS download action present in the export menu');
 });
 
-test('stays self-contained — no external asset references', () => {
+test('stays self-contained: no external asset references', () => {
   const html = renderHtml(data, tpl);
   assert.ok(!/https?:\/\/(cdn|fonts|unpkg|jsdelivr|cdnjs)/i.test(html), 'no CDN/web-font assets');
 });
@@ -79,7 +79,7 @@ test('reader surfaces the per-paper summary (detail section + card preview)', ()
   assert.ok(html.includes('confines low-rank adapters to the cross-attention layers'), 'summary text embedded in data');
 });
 
-test('embeds the editorial typeface inline — no web-font fetch', () => {
+test('embeds the typeface inline: no web-font fetch', () => {
   const html = renderHtml(data, tpl);
   assert.ok(!html.includes('__PAPER_BOY_FONTS__'), 'font token replaced');
   assert.ok(html.includes('@font-face'), '@font-face declared');

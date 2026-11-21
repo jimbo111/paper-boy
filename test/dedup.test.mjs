@@ -56,7 +56,7 @@ test('does not merge distinct untitled papers on the empty-title key', () => {
 
 test('absorbed entries leave no stale keys behind (alternate-title resurrection)', () => {
   // "Baz" merges into the DOI cluster via entry b; when a bridge record later absorbs
-  // that cluster, the "Baz" title key must follow it — a fifth record titled "Baz"
+  // that cluster, the "Baz" title key must follow it; a fifth record titled "Baz"
   // must land in the merged entry, not resurrect as a duplicate.
   const a = mk({ id: '1', title: 'Foo', arxivId: 'X' });
   const b = mk({ id: '2', title: 'Bar', doi: '10.1/d' });

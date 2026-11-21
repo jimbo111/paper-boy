@@ -6,7 +6,7 @@
 <title>paper-boy</title>
 <style>
 /* ============================================================================
-   paper-boy — set like a journal article. One typeface (Latin Modern Roman,
+   paper-boy, set like a journal article. One typeface (Latin Modern Roman,
    GUST Font License, inlined below), black ink on white, a single link blue,
    five type sizes. Self-contained & offline: no web fonts, no external requests
    except outbound paper links.
@@ -343,7 +343,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
     // Blocked site data (SecurityError) or a corrupt saved value must not blank the page.
     var read = new Set();
     try { var savedRead = JSON.parse(localStorage.getItem(READKEY) || '[]'); if (Array.isArray(savedRead)) read = new Set(savedRead); } catch (e) {}
-    var lastDetailId = null; // which paper the detail pane last showed — gates the scroll reset
+    var lastDetailId = null; // which paper the detail pane last showed; gates the scroll reset
 
     // Report markdown, embedded as a JSON string so it round-trips byte-for-byte.
     var REPORT_MD = '';
@@ -359,11 +359,11 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
         return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
       });
     }
-    // Count/year fields are interpolated into markup without esc() — coerce them to
+    // Count/year fields are interpolated into markup without esc(); coerce them to
     // real numbers so a non-numeric value from a source can never carry markup.
     function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
     function primaryLink(p) { var l = p.links || {}; return l.arxiv || l.doi || l.pdf || l.landing || null; }
-    // Only allow safe schemes for outbound links — paper URLs come from external APIs.
+    // Only allow safe schemes for outbound links; paper URLs come from external APIs.
     function safeUrl(u) {
       try { var x = new URL(u, location.href); return /^(https?|mailto):$/.test(x.protocol) ? x.href : '#'; }
       catch (e) { return '#'; }
@@ -580,7 +580,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
       h += '<div class="deep-zone" id="deepZone" aria-live="polite">' + deepHtml(p.id) + '</div>';
       h += '</article>';
       el.innerHTML = h;
-      // jump to top only when the selection changed — re-renders of the same paper
+      // jump to top only when the selection changed; re-renders of the same paper
       // (mark read, analysis loading/result) keep the reading position
       if (lastDetailId !== p.id) el.scrollTop = 0;
       lastDetailId = p.id;
@@ -647,13 +647,13 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
       if (window.matchMedia && matchMedia('(max-width:720px)').matches) document.getElementById('rdetail').scrollIntoView({ block: 'start' });
     };
     window.toggleCluster = function (name) { if (state.collapsed.has(name)) state.collapsed.delete(name); else state.collapsed.add(name); renderDashboard(); };
-    // Count only ids that exist in this run — the read set is per-slug and may
+    // Count only ids that exist in this run; the read set is per-slug and may
     // carry ids from an older run of the same topic.
     function readCount() { var n = 0; papers.forEach(function (p) { if (read.has(p.id)) n++; }); return n; }
     function syncProgress() { var el = document.getElementById('readCount'); if (el) el.textContent = readCount(); }
     window.toggleRead = function (id) {
       if (read.has(id)) read.delete(id); else read.add(id);
-      try { localStorage.setItem(READKEY, JSON.stringify([...read])); } catch (e) {} // storage may be unavailable (private mode) — the toggle still works for this session
+      try { localStorage.setItem(READKEY, JSON.stringify([...read])); } catch (e) {} // storage may be unavailable (private mode); the toggle still works for this session
       syncProgress();
       if (state.view === 'reader') renderReader(); else renderDashboard();
     };
@@ -705,7 +705,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
       if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
       else if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
       else if (e.key === 'Enter' && state.selected) {
-        // Enter on a focused control activates that control only — it must not also pop the paper
+        // Enter on a focused control activates that control only; it must not also pop the paper
         if (t && t.closest && t.closest('button, a, [tabindex]')) return;
         var p = byId[state.selected]; var link = p && primaryLink(p);
         if (link) window.open(safeUrl(link), '_blank', 'noopener,noreferrer');
@@ -713,7 +713,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
     });
 
     // Event delegation: read values from data-* (HTML-attribute-escaped, decoded by the
-    // browser on read) instead of interpolating them into inline-handler JS strings — so
+    // browser on read) instead of interpolating them into inline-handler JS strings, so
     // ids/cluster names containing quotes or backslashes can never break a handler.
     document.addEventListener('click', function (e) {
       var t = e.target.closest && e.target.closest('[data-act]');
@@ -728,7 +728,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
       else if (act === 'deeper') { window.goDeeper(id); }
       else if (act === 'prev' || act === 'next') {
         moveSel(act === 'prev' ? -1 : 1);
-        // renderDetail replaced the buttons — restore keyboard focus so paging
+        // renderDetail replaced the buttons; restore keyboard focus so paging
         // with Enter/Space doesn't dump focus on <body>.
         var same = document.querySelector('[data-act="' + act + '"]');
         var other = document.querySelector('[data-act="' + (act === 'prev' ? 'next' : 'prev') + '"]');
@@ -848,7 +848,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
         '\n\nReturn ONLY JSON {"findings":[string],"method":string,"limitations":[string],"significance":string}: ' +
         'findings = concrete results explicitly stated in the abstract; method = the approach in 1-2 lines; ' +
         'limitations = stated or clearly implied limits (empty if none in the abstract); significance = why it matters for the topic. ' +
-        'This is abstract-based — do not fabricate full-text details. If the abstract is thin, keep arrays short and honest.';
+        'This is abstract-based: do not fabricate full-text details. If the abstract is thin, keep arrays short and honest.';
     }
     async function callProvider(p) {
       var body, url, headers;
@@ -865,7 +865,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
       }
       // 60s cap so a hung request can't leave the card spinning forever (the loading
       // guard in goDeeper would otherwise block retrying that paper until reload). The
-      // deadline stays armed until the BODY is read — headers then a stalled stream
+      // deadline stays armed until the BODY is read; headers then a stalled stream
       // must still time out.
       var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
       var timer = ctrl && setTimeout(function () { ctrl.abort(); }, 60000);
@@ -875,7 +875,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
         if (res.ok) j = await res.json();
         else { try { errText = await res.text(); } catch (e) {} }
       } catch (err) {
-        if (ctrl && ctrl.signal.aborted) throw new Error('The provider did not respond within 60 seconds — try again.');
+        if (ctrl && ctrl.signal.aborted) throw new Error('The provider did not respond within 60 seconds. Try again.');
         throw err;
       } finally { if (timer) clearTimeout(timer); }
       if (!res.ok) throw new Error('HTTP ' + res.status + (errText ? ' · ' + errText.slice(0, 160) : ''));
@@ -910,7 +910,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
       });
     }
     function rerender() { if (state.view === 'reader') renderReader(); else renderDashboard(); }
-    // Print always shows the Overview (see @media print) — rebuild it first so
+    // Print always shows the Overview (see @media print); rebuild it first so
     // printing from Reader view doesn't emit a stale, previously-rendered dashboard.
     window.addEventListener('beforeprint', function () { renderDashboard(); });
     function anyFilter() { return !!(state.search || state.sources.size || state.clusters.size); }
@@ -949,7 +949,7 @@ body.reading .footnotes { display:none; }   /* the reader view scrolls in its pa
     document.getElementById('sort').addEventListener('change', function (e) { state.sort = e.target.value; rerender(); });
     chips('sourceChips', allSources(), state.sources);
     chips('clusterChips', allClusters(), state.clusters);
-    // The control deck wraps at narrow widths — measure it instead of hardcoding 58px
+    // The control deck wraps at narrow widths; measure it instead of hardcoding 58px
     // so the reader pane height and scroll anchoring stay correct.
     var deckEl = document.querySelector('.deck');
     function syncDeckH() { document.documentElement.style.setProperty('--deck-h', deckEl.offsetHeight + 'px'); }

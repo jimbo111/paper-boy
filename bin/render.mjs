@@ -26,7 +26,7 @@ const dir = dirname(o.in);
 const tpl = readFileSync(join(HERE, '../template/reader.html'), 'utf8');
 
 const htmlPath = join(dir, 'index.html');
-// The Markdown report is no longer written to disk — it is embedded in the HTML
+// The Markdown report is no longer written to disk; it is embedded in the HTML
 // and offered as a download from the in-browser Export menu. papers.raw.json and
 // papers.enriched.json remain on disk as the audit trail.
 const markdown = renderMarkdown(enriched);

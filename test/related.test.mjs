@@ -5,7 +5,7 @@ import { workLookupUrl, refsBatchUrl, fetchRelated } from '../lib/sources/openal
 test('workLookupUrl resolves by DOI, then openalex id, then arxiv id', () => {
   assert.match(workLookupUrl({ doi: '10.1/x' }), /works\/https:\/\/doi\.org\/10\.1\/x\?select=id,referenced_works/);
   assert.match(workLookupUrl({ id: 'openalex:W123' }), /works\/W123\?/);
-  // OpenAlex has no `arxiv:` lookup namespace — arXiv papers resolve via their
+  // OpenAlex has no `arxiv:` lookup namespace; arXiv papers resolve via their
   // DataCite DOI 10.48550/arxiv.<id>.
   assert.match(workLookupUrl({ arxivId: '2402.05678' }), /works\/https:\/\/doi\.org\/10\.48550\/arxiv\.2402\.05678\?/);
   assert.equal(workLookupUrl({ id: 'arxiv:x' }), null); // no doi/openalex/arxivId fields
@@ -41,7 +41,7 @@ test('fetchRelated walks the graph and returns slim, capped, real refs', async (
   assert.equal(out[0].title, 'Ref A');
   assert.equal(out[0].doi, '10.5/a');
   assert.equal(out[0].link, 'https://doi.org/10.5/a');
-  // slim shape only — no abstract/tldr carried through
+  // slim shape only; no abstract/tldr carried through
   assert.deepEqual(Object.keys(out[0]).sort(), ['authors', 'citationCount', 'doi', 'id', 'link', 'title', 'venue', 'year'].sort());
 });
 

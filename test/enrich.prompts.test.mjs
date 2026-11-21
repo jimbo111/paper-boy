@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as prompts from '../lib/enrich/prompts.mjs';
 
-// Structured-output endpoints reject numeric/string/array constraints — a raw request
+// Structured-output endpoints reject numeric/string/array constraints; a raw request
 // (no SDK to strip them) must never carry one.
 const UNSUPPORTED = ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf',
   'minLength', 'maxLength', 'minItems', 'maxItems', 'uniqueItems'];
